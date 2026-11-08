@@ -3,6 +3,7 @@ import { ref, onMounted, watch, reactive } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import { api } from '../api';
+import { locale } from '../i18n';
 import PostCard from '../components/PostCard.vue';
 import GarmentArt from '../components/GarmentArt.vue';
 import Icon from '../components/Icon.vue';
@@ -11,7 +12,9 @@ const store = useStore(),
   route = useRoute(),
   router = useRouter(),
   posts = ref([]),
-  category = ref('all'),
+  category = ref(
+    ['daily', 'work', 'occasion'].includes(route.query.category) ? route.query.category : 'all'
+  ),
   q = ref(route.query.q || ''),
   loading = ref(true),
   error = ref(''),
@@ -56,6 +59,12 @@ onMounted(async () => {
 });
 watch(category, load);
 watch(
+  () => route.query.category,
+  (v) => {
+    category.value = ['daily', 'work', 'occasion'].includes(v) ? v : 'all';
+  }
+);
+watch(
   () => route.query.q,
   (v) => {
     q.value = v || '';
@@ -79,7 +88,10 @@ async function like(post) {
 async function generate() {
   aiBusy.value = true;
   try {
-    const r = await api('/captions', { method: 'POST', body: { config: draftConfig.value } });
+    const r = await api('/captions', {
+      method: 'POST',
+      body: { config: draftConfig.value, locale: locale.value },
+    });
     draft.caption = r.caption;
     store.commit('toast', { message: '演示文案已生成，可自由编辑后发布。' });
   } catch (e) {
@@ -136,13 +148,18 @@ function close() {
   <div class="page community-page">
     <div class="page-heading">
       <div>
-        <div class="eyebrow">THE SMARTFIT COMMUNITY</div>
-        <h1>每一种风格，都有回响。</h1>
-        <p>分享日常的灵感，遇见同频的你。</p>
+        <div class="eyebrow">THE STYLE COMMUNITY</div>
+        <h1>{{ $t('風格不同，一樣出眾。') }}</h1>
+        <p>{{ $t('穿搭、靈感、個性。這裡，每個人都是風格的主角。') }}</p>
       </div>
       <button class="primary" @click="openCompose">
-        <Icon name="plus" :size="18" />分享我的穿搭
+        <Icon name="plus" :size="18" />{{ $t('發佈穿搭') }}
       </button>
+    </div>
+    <div class="community-editor-band">
+      <span>THE DAILY EDIT</span>
+      <p>{{ $t('真實街頭，真實風格。今日靈感已上線。') }}</p>
+      <RouterLink to="/studio">{{ $t('從靈感開始訂製 ↗') }}</RouterLink>
     </div>
     <div class="community-toolbar">
       <div class="filter-tabs">
@@ -157,22 +174,22 @@ function close() {
           :class="{ selected: category === id }"
           @click="category = id"
         >
-          {{ label }}
+          {{ $t(label) }}
         </button>
       </div>
       <form class="inline-search" @submit.prevent="load">
         <Icon name="search" :size="17" /><input
           v-model="q"
-          aria-label="搜索社区"
-          placeholder="寻找你的下一份灵感"
-        /><button class="text-button">搜索</button>
+          :aria-label="$t('搜索社区')"
+          :placeholder="$t('寻找你的下一份灵感')"
+        /><button class="text-button">{{ $t('搜索') }}</button>
       </form>
     </div>
-    <div v-if="error && !compose" class="error-box" role="alert">{{ error }}</div>
-    <div v-if="loading" class="loading-state">灵感正在到来…</div>
+    <div v-if="error && !compose" class="error-box" role="alert">{{ $t(error) }}</div>
+    <div v-if="loading" class="loading-state">{{ $t('灵感正在到来…') }}</div>
     <div v-else-if="!posts.length" class="empty-state">
-      <h2>还没有找到这份灵感。</h2>
-      <p>换个关键词，或者成为第一个分享的人。</p>
+      <h2>{{ $t('还没有找到这份灵感。') }}</h2>
+      <p>{{ $t('换个关键词，或者成为第一个分享的人。') }}</p>
       <button
         class="secondary"
         @click="
@@ -181,7 +198,7 @@ function close() {
           load();
         "
       >
-        查看全部
+        {{ $t('查看全部') }}
       </button>
     </div>
     <div v-else class="post-grid">
@@ -198,9 +215,9 @@ function close() {
           <div class="modal-heading">
             <div>
               <div class="eyebrow">SHARE YOUR EVERYDAY</div>
-              <h2 id="compose-title">把灵感，分享出去。</h2>
+              <h2 id="compose-title">{{ $t('把灵感，分享出去。') }}</h2>
             </div>
-            <button class="icon-button" aria-label="关闭发布窗口" @click="close">
+            <button class="icon-button" :aria-label="$t('关闭发布窗口')" @click="close">
               <Icon name="close" />
             </button>
           </div>
@@ -210,9 +227,9 @@ function close() {
                 <img
                   v-if="draft.imageUrl"
                   :src="draft.imageUrl"
-                  alt="待发布的穿搭照片"
+                  :alt="$t('待发布的穿搭照片')"
                 /><GarmentArt v-else :config="draftConfig" /><label class="secondary upload-label"
-                  ><Icon name="plus" :size="16" />{{ uploading ? '正在上传…' : '上传穿搭照片'
+                  ><Icon name="plus" :size="16" />{{ $t(uploading ? '正在上传…' : '上传穿搭照片')
                   }}<input
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
@@ -222,23 +239,26 @@ function close() {
               </div>
               <div>
                 <label class="field"
-                  >关联我的设计<select v-model="draft.designId">
-                    <option value="">使用基础亚麻裙设计</option>
-                    <option v-for="d in designs" :key="d.id" :value="d.id">{{ d.name }}</option>
+                  >{{ $t('关联我的设计')
+                  }}<select v-model="draft.designId">
+                    <option value="">{{ $t('使用基础亚麻裙设计') }}</option>
+                    <option v-for="d in designs" :key="d.id" :value="d.id">{{ $t(d.name) }}</option>
                   </select></label
                 ><label class="field"
-                  >穿搭分类<select v-model="draft.category">
-                    <option value="daily">日常穿搭</option>
-                    <option value="work">通勤日记</option>
-                    <option value="occasion">特别时刻</option>
+                  >{{ $t('穿搭分类')
+                  }}<select v-model="draft.category">
+                    <option value="daily">{{ $t('日常穿搭') }}</option>
+                    <option value="work">{{ $t('通勤日记') }}</option>
+                    <option value="occasion">{{ $t('特别时刻') }}</option>
                   </select></label
                 ><label class="field"
-                  >此刻的灵感<textarea
+                  >{{ $t('此刻的灵感')
+                  }}<textarea
                     v-model="draft.caption"
                     required
                     maxlength="1000"
                     rows="6"
-                    placeholder="这件衣服背后，有怎样的故事？"
+                    :placeholder="$t('这件衣服背后，有怎样的故事？')"
                   ></textarea></label
                 ><button
                   type="button"
@@ -246,20 +266,24 @@ function close() {
                   :disabled="aiBusy"
                   @click="generate"
                 >
-                  <Icon name="spark" :size="16" />{{ aiBusy ? '正在寻找灵感…' : '帮我写一段文案'
-                  }}<span class="pill">本地模板演示</span>
+                  <Icon name="spark" :size="16" />{{
+                    $t(aiBusy ? '正在寻找灵感…' : '帮我写一段文案')
+                  }}<span class="pill">{{ $t('本地模板演示') }}</span>
                 </button>
               </div>
             </div>
             <p class="small-note">
-              图片需为 JPEG / PNG / WebP，最多 5
-              MB。上传即表示你同意在此演示社区展示图片；请只分享你有权发布的内容。
+              {{
+                $t(
+                  '图片需为 JPEG / PNG / WebP，最多 5 MB。上传即表示你同意在此演示社区展示图片；请只分享你有权发布的内容。'
+                )
+              }}
             </p>
-            <p v-if="error" class="error-box" role="alert">{{ error }}</p>
+            <p v-if="error" class="error-box" role="alert">{{ $t(error) }}</p>
             <div class="modal-footer">
-              <button type="button" class="secondary" @click="close">稍后再说</button
+              <button type="button" class="secondary" @click="close">{{ $t('稍后再说') }}</button
               ><button class="primary" :disabled="busy || uploading || !draft.caption.trim()">
-                {{ busy ? '发布中…' : '发布我的穿搭' }}<Icon name="arrow" :size="17" />
+                {{ $t(busy ? '发布中…' : '发布我的穿搭') }}<Icon name="arrow" :size="17" />
               </button>
             </div>
           </form>

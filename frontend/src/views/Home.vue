@@ -1,13 +1,19 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+import { useStore } from 'vuex';
 import { api } from '../api';
+import { locale } from '../i18n';
 import Icon from '../components/Icon.vue';
-import GarmentArt from '../components/GarmentArt.vue';
+import PostCard from '../components/PostCard.vue';
+import { editorial } from '../../../shared/editorial';
 const city = ref('Hong Kong'),
   data = ref(null),
   error = ref(''),
   posts = ref([]),
-  busy = ref(false);
+  busy = ref(false),
+  router = useRouter(),
+  store = useStore();
 async function load() {
   busy.value = true;
   error.value = '';
@@ -22,206 +28,166 @@ async function load() {
 onMounted(async () => {
   await load();
   try {
-    posts.value = (await api('/posts')).posts.slice(0, 3);
+    posts.value = (await api('/posts')).posts.slice(0, 8);
   } catch (e) {
     error.value = e.message;
   }
 });
+async function like(p) {
+  if (!store.state.user) return router.push({ path: '/account', query: { next: '/' } });
+  try {
+    Object.assign(p, await api('/posts/' + p.id + '/like', { method: 'POST' }));
+  } catch (e) {
+    error.value = e.message;
+  }
+}
 </script>
 <template>
   <div class="home">
-    <section class="hero">
-      <div class="hero-copy">
-        <div class="eyebrow"><span></span> YOUR STYLE, YOUR FIT</div>
-        <h1>不必适应衣服，<br />让衣服<span class="serif-accent">懂你。</span></h1>
-        <p>从一缕面料，到每一寸合身。<br />为你的身形、喜好与生活，定制独一无二的日常。</p>
+    <section class="fashion-hero">
+      <div class="fashion-hero-copy">
+        <div class="eyebrow"><span class="red-dot"></span> THE NEW PERSONAL STYLE</div>
+        <h1>
+          {{ $t('穿出你的') }}<br /><span>{{ $t('下一個版本。') }}</span>
+        </h1>
+        <p>
+          {{ $t('從街頭靈感到專屬訂製。') }}<br />{{ $t('發現喜歡的風格，把它變成你的日常。') }}
+        </p>
         <div class="hero-buttons">
           <RouterLink to="/studio" class="primary"
-            >开始我的设计<Icon name="arrow" :size="18" /></RouterLink
-          ><RouterLink to="/community" class="underlink">寻找穿搭灵感 <span>↗</span></RouterLink>
+            >{{ $t('開啟我的訂製') }}<Icon name="arrow" :size="18" /></RouterLink
+          ><RouterLink to="/community" class="hero-secondary">{{
+            $t('探索穿搭社群 ↗')
+          }}</RouterLink>
         </div>
-        <div class="hero-proof">
-          <div class="mini-avatars"><span>林</span><span>陈</span><span>周</span></div>
-          <div>
-            <b>每一种身形，都值得被好好对待</b><small>MADE TO MEASURE · MADE FOR YOU</small>
-          </div>
+        <div class="hero-editor-note">
+          <span>01 / THE CITY EDIT</span
+          ><span>{{ $t('靈感來自真實街頭') }}<br />{{ $t('風格由你重新定義') }}</span>
         </div>
       </div>
-      <div class="hero-visual">
-        <div class="visual-arch"></div>
-        <span class="visual-tag">THE EVERYDAY COLLECTION / 01</span>
-        <div class="hero-art">
-          <GarmentArt
-            :config="{
-              colorHex: '#6f816c',
-              fabricId: 'linen',
-              sleeve: 'sleeveless',
-              collar: 'square',
-            }"
-            :scene="false"
-          />
+      <RouterLink to="/community/seed-1" class="fashion-hero-photo"
+        ><img
+          src="/editorial/look-1.webp"
+          :alt="$t('城市街頭的藍色風衣穿搭攝影')"
+          fetchpriority="high"
+        />
+        <div class="hero-photo-top"><span>THE SMARTFIT EDIT</span><span>2026 / VOL. 01</span></div>
+        <div class="hero-photo-title">
+          <div>
+            <small>MILAN, WITH ATTITUDE.</small>
+            <h2>City is your<br /><em>runway.</em></h2>
+          </div>
+          <span class="hero-photo-arrow"><Icon name="arrow" :size="25" /></span>
         </div>
-        <div class="floating-fabric">
-          <span class="fabric-swatch linen"></span>
-          <div><small>一份自然的选择</small><b>100% 天然亚麻</b></div>
-          <Icon name="leaf" />
+        <span class="photo-credit">{{ $t('攝影靈感 · Unsplash') }}</span></RouterLink
+      >
+    </section>
+    <div class="style-marquee">
+      <span>DISCOVER.</span><Icon name="spark" :size="18" /><span>MAKE IT YOURS.</span
+      ><Icon name="spark" :size="18" /><span>WEAR IT YOUR WAY.</span
+      ><Icon name="spark" :size="18" /><span>SMARTFIT.</span>
+    </div>
+    <section class="section trend-section">
+      <div class="section-title">
+        <div>
+          <div class="eyebrow">YOUR NEXT STYLE OBSESSION</div>
+          <h2>{{ $t('現在，流行做自己。') }}</h2>
         </div>
-        <div class="floating-fit"><Icon name="check" :size="16" />专属于你的合身</div>
-        <div class="visual-caption">
-          <span>由你定义的日常。</span><small>DESIGNED BY YOU, CRAFTED WITH CARE.</small>
-        </div>
-        <span class="vertical-text">LESS EXCESS. MORE EXPRESSION.</span>
+        <RouterLink to="/community" class="underlink"
+          >{{ $t('探索全部風格') }}<Icon name="arrow" :size="17"
+        /></RouterLink>
+      </div>
+      <div class="trend-grid">
+        <RouterLink
+          v-for="(item, i) in [
+            { id: 0, label: '都會通勤', en: 'CITY UNIFORM', category: 'work' },
+            { id: 8, label: '日常街頭', en: 'OFF-DUTY', category: 'daily' },
+            { id: 3, label: '週末出逃', en: 'WEEKEND ESCAPE', category: 'occasion' },
+          ]"
+          :key="item.category"
+          :to="{ path: '/community', query: { category: item.category } }"
+          class="trend-card"
+          ><img :src="editorial[item.id].imageUrl" :alt="$t(item.label)" loading="lazy" />
+          <div>
+            <span>0{{ $t(i + 1) }} / {{ $t(item.en) }}</span>
+            <h3>{{ $t(item.label) }}</h3>
+            <Icon name="arrow" :size="20" /></div
+        ></RouterLink>
       </div>
     </section>
-    <div class="value-strip">
-      <span><Icon name="spark" />个性化定制</span><span><Icon name="user" />为每种身形而作</span
-      ><span><Icon name="leaf" />按需生产理念</span
-      ><span><Icon name="heart" />有温度的穿搭社区</span>
-    </div>
-    <section class="section weather-section">
-      <div class="weather-icon"><Icon name="sun" :size="42" /></div>
-      <div class="weather-copy">
-        <div class="eyebrow">DRESSED FOR YOUR DAY</div>
-        <h2>好天气，有好搭配。</h2>
+    <section class="weather-edit section">
+      <div class="weather-edit-heading">
+        <div class="eyebrow">STYLE MEETS YOUR DAY</div>
+        <h2>{{ $t('好搭，也要好穿。') }}</h2>
         <p v-if="data?.weather">
-          {{ data.weather.temperature }}°C · {{ data.weather.condition }} · 湿度
-          {{ data.weather.humidity }}%<span>为今天挑选舒适的面料。</span>
+          <Icon name="sun" :size="17" />{{ $t(data.weather.temperature) }}°C ·
+          {{ $t(data.weather.condition) }}<small>{{ $t('情境展示') }}</small>
         </p>
-        <p v-else>{{ data?.message || '正在准备今日灵感…' }}</p>
-        <small class="demo-label">演示天气 · 非实时数据</small>
+        <p v-else>{{ $t(data?.message || '正在準備面料推薦…') }}</p>
       </div>
       <label class="city-select"
-        ><Icon name="pin" :size="17" /><select v-model="city" aria-label="选择城市" @change="load">
-          <option value="Hong Kong">香港</option>
-          <option value="Shanghai">上海</option>
-          <option value="Beijing">北京</option>
-          <option value="Shenzhen">深圳</option>
+        ><Icon name="pin" :size="16" /><select
+          v-model="city"
+          @change="load"
+          :aria-label="$t('選擇城市')"
+        >
+          <option value="Hong Kong">{{ $t('香港') }}</option>
+          <option value="Shanghai">{{ $t('上海') }}</option>
+          <option value="Beijing">{{ $t('北京') }}</option>
+          <option value="Shenzhen">{{ $t('深圳') }}</option>
         </select></label
       >
-      <div class="weather-fabrics">
+      <div class="weather-edit-fabrics">
         <RouterLink
           v-for="f in data?.fabrics"
           :key="f.id"
           :to="{ path: '/studio', query: { fabric: f.id } }"
-          ><span class="fabric-swatch" :style="{ backgroundColor: f.tone }"></span
-          ><b>{{ f.name }}</b
-          ><small>适合今日 <span>↗</span></small></RouterLink
-        >
-      </div>
-      <p v-if="error" class="error-text" role="alert">
-        {{ error }} <button @click="load">重试</button>
-      </p>
-    </section>
-    <section class="section">
-      <div class="section-title">
-        <div>
-          <div class="eyebrow">A LITTLE INSPIRATION</div>
-          <h2>从喜欢的样子开始。</h2>
-          <p>精选版型，自由表达。下一件心头好，由你创造。</p>
-        </div>
-        <RouterLink to="/studio" class="underlink"
-          >探索定制工作室 <Icon name="arrow" :size="18"
-        /></RouterLink>
-      </div>
-      <div class="collection-grid">
-        <RouterLink
-          v-for="(item, i) in [
-            {
-              name: '自在亚麻裙',
-              en: 'THE LINEN EDIT',
-              color: '#8c9b82',
-              fabric: 'linen',
-              tag: '轻盈 · 自在',
-            },
-            {
-              name: '通勤新日常',
-              en: 'WORK, YOUR WAY',
-              color: '#d0afa0',
-              fabric: 'silk',
-              tag: '简约 · 得体',
-            },
-            {
-              name: '留给特别的你',
-              en: 'SOMETHING SPECIAL',
-              color: '#756477',
-              fabric: 'silk',
-              tag: '细腻 · 从容',
-            },
-          ]"
-          :key="item.name"
-          :to="{
-            path: '/studio',
-            query: {
-              fabric: item.fabric,
-              color: item.color,
-              occasion: i === 1 ? 'work' : i === 2 ? 'occasion' : 'daily',
-            },
-          }"
-          class="collection-card"
-          ><div :class="['collection-art', 'tone-' + i]">
-            <span class="collection-tag">{{ item.tag }}</span
-            ><GarmentArt
-              :config="{
-                colorHex: item.color,
-                fabricId: item.fabric,
-                garmentType: i === 1 ? 'top' : 'dress',
-                length: i === 1 ? 'short' : i === 2 ? 'maxi' : 'midi',
-                sleeve: i === 2 ? 'sleeveless' : 'short',
-                collar: i === 1 ? 'v-neck' : 'round',
-              }"
-            /><span class="round-arrow">↗</span>
+          ><span class="fabric-swatch" :style="{ backgroundColor: f.tone }"></span>
+          <div>
+            <b>{{ $t(f.name) }}</b
+            ><small>{{ $t(f.description) }}</small>
           </div>
-          <small>{{ item.en }}</small>
-          <h3>{{ item.name }}</h3>
-          <p>以你喜欢的方式，重新定义。</p></RouterLink
-        >
-      </div>
-    </section>
-    <section class="story-banner section">
-      <div>
-        <div class="eyebrow">THOUGHTFULLY MADE</div>
-        <h2>少一点将就，<br />多一点<span class="serif-accent">刚刚好。</span></h2>
-        <p>每一件定制服装，都从你的选择开始。<br />按需制作，让设计与需求相遇。</p>
-        <RouterLink to="/studio" class="underlink"
-          >了解我的定制之旅 <Icon name="arrow" :size="17"
+          <Icon name="arrow" :size="16"
         /></RouterLink>
       </div>
-      <ol class="journey">
-        <li>
-          <span>01</span>
-          <h3>选择你的风格</h3>
-          <p>面料、颜色、廓形，让灵感成形。</p>
-        </li>
-        <li>
-          <span>02</span>
-          <h3>找到你的合身</h3>
-          <p>输入尺寸，在虚拟试衣间预览。</p>
-        </li>
-        <li>
-          <span>03</span>
-          <h3>等待专属的作品</h3>
-          <p>从下单到收货，进度始终清晰。</p>
-        </li>
-      </ol>
     </section>
-    <section class="section">
+    <section class="section style-feed-section">
       <div class="section-title">
         <div>
-          <div class="eyebrow">REAL STYLE, REAL STORIES</div>
-          <h2>穿出自己，也遇见同好。</h2>
+          <div class="eyebrow">THE STYLE FEED</div>
+          <h2>{{ $t('真實穿搭，無限靈感。') }}</h2>
+          <p>{{ $t('從街頭瞬間到衣櫥提案，找到下一套想穿的風格。') }}</p>
         </div>
         <RouterLink to="/community" class="underlink"
-          >走进穿搭社区 <Icon name="arrow" :size="18"
+          >{{ $t('進入穿搭社群') }}<Icon name="arrow" :size="17"
         /></RouterLink>
       </div>
-      <div class="home-post-grid">
-        <RouterLink v-for="p in posts" :key="p.id" :to="'/community/' + p.id" class="home-post"
-          ><div class="post-preview"><GarmentArt :config="p.config" /></div>
-          <small>{{ p.author }}</small>
-          <p>{{ p.caption }}</p>
-          <span
-            ><Icon name="heart" :size="15" />{{ p.likes }} <span>发现这一套 ↗</span></span
-          ></RouterLink
+      <p v-if="error" class="error-box" role="alert">{{ $t(error) }}</p>
+      <div class="post-grid home-style-feed">
+        <PostCard v-for="p in posts" :key="p.id" :post="p" @like="like" />
+      </div>
+      <p class="editorial-disclaimer">
+        {{ $t('真人攝影為編輯靈感選集，非用戶購買見證；照片款式與訂製預覽可能不同。') }}
+      </p>
+    </section>
+    <section class="custom-promo section">
+      <div class="custom-promo-copy">
+        <div class="eyebrow">DON'T JUST SAVE IT. CREATE IT.</div>
+        <h2>
+          {{ $t('收藏靈感之後，') }}<br />{{ $t('讓它真正') }}<span>{{ $t('屬於你。') }}</span>
+        </h2>
+        <p>
+          {{ $t('選面料、改顏色、調整版型。') }}<br />{{
+            $t('在 3D 工作室，把喜歡穿成自己的樣子。')
+          }}
+        </p>
+        <RouterLink to="/studio" class="primary"
+          >{{ $t('進入 3D 訂製工作室') }}<Icon name="arrow" :size="18"
+        /></RouterLink>
+      </div>
+      <div class="custom-promo-image">
+        <img src="/editorial/look-6.webp" :alt="$t('日常衣櫥與服裝攝影')" loading="lazy" /><span
+          >YOUR WARDROBE.<br />YOUR RULES.</span
         >
       </div>
     </section>

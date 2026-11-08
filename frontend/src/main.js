@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import { createRouter, createWebHistory } from 'vue-router';
 import App from './App.vue';
+import { i18n, setLocale, locale } from './i18n';
 import store from './store';
 import './style.css';
 const router = createRouter({
@@ -21,6 +22,7 @@ const router = createRouter({
     },
     { path: '/orders/:id?', component: () => import('./views/Orders.vue'), meta: { auth: true } },
     { path: '/partners', component: () => import('./views/Partners.vue') },
+    { path: '/credits', component: () => import('./views/Credits.vue') },
     { path: '/account', component: () => import('./views/Account.vue') },
     { path: '/:pathMatch(.*)*', component: () => import('./views/NotFound.vue') },
   ],
@@ -35,4 +37,5 @@ router.beforeEach(async (to) => {
   }
   if (to.meta.auth && !store.state.user) return { path: '/account', query: { next: to.fullPath } };
 });
-createApp(App).use(store).use(router).mount('#app');
+setLocale(locale.value);
+createApp(App).use(i18n).use(store).use(router).mount('#app');

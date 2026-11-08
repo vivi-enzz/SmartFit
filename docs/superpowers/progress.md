@@ -14,3 +14,14 @@ Final review: independent agent found reused-route stale content in Post/Checkou
 Final: fixed stale route content — route-resource tests RED→GREEN, suite 29/29.
 Final: production build passed; production HTTP smoke 1/1.
 Final: source retained locally on feat/smartfit-demo; no remote or publication.
+
+# Commercial refresh 2026-11-09
+User chose direct implementation. Native execution; no extra design approval gate.
+Plan: docs/superpowers/plans/2026-11-09-commercial-refresh.md
+Task 1 investigating: fixed string proxy configuration is present locally; user still sees mismatch. Default single-origin launcher will remove proxy dependence, rather than permitting arbitrary origins. Add version diagnostics and preserve security tests.
+
+Refresh Tasks 1–4: implemented. Default development is one-origin Express+Vite; old proxy tests retained. Real editorial photography and CC0 anatomical asset bundled locally, source manifest included. zh-Hant/en dictionaries cover all registered phrases; locale persistence, English search and generated captions implemented.
+Review: independent reviewer found neckline overlay occlusion; fixed by deforming the actual garment edge and added failing-to-passing geometric regression. Dynamic localized status/colour labels fixed with parameterized patterns and regression tests.
+Ruling: no available managed browser-control tool; no alternate browser installed. Tests cover real HTTP middleware and SSR, not rendered visual/interaction or WebGL validation.
+
+Refresh verification: 43/43 tests, production build, production HTTP smoke 1/1, updater bash syntax passed. Independent review fixes verified; no browser verification. Sources ready for authorized GitHub upload.

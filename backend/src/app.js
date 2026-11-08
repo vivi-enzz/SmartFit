@@ -23,6 +23,7 @@ import {
   statusLabels,
 } from './catalog.js';
 import { recommendations, caption, nearby, providers } from './adapters.js';
+import { editorialById } from '../../shared/editorial.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const now = () => new Date().toISOString();
 const fail = (status, message) => Object.assign(new Error(message), { status });
@@ -31,6 +32,7 @@ const text = (s, min, max) =>
 const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, demo: !!u.demo });
 export function createApp({
   dataDir = process.env.DATA_DIR || path.join(root, 'backend/data'),
+  serveFrontend = true,
 } = {}) {
   const app = express(),
     { db, key } = openStore(dataDir);
@@ -152,6 +154,15 @@ export function createApp({
     user_id: undefined,
     config: JSON.parse(r.config),
     imageUrl: r.image_url,
+    ...(r.user_id === 'seed' && editorialById[r.id]
+      ? {
+          editorial: true,
+          credit: editorialById[r.id].credit,
+          captionEn: editorialById[r.id].captionEn,
+          title: editorialById[r.id].title,
+          kicker: editorialById[r.id].kicker,
+        }
+      : {}),
     author: db.prepare('SELECT name FROM users WHERE id=?').get(r.user_id)?.name || 'SmartFit 用户',
     likes: db.prepare('SELECT count(*) n FROM likes WHERE post_id=?').get(r.id).n,
     liked: !!db.prepare('SELECT 1 FROM likes WHERE post_id=? AND user_id=?').get(r.id, user || ''),
@@ -169,7 +180,9 @@ export function createApp({
       [...Object.keys(options), 'fabricId', 'colorHex'].map((k) => [k, body.config[k]])
     );
   };
-  app.get('/api/health', (req, res) => res.json({ ok: true, mode: 'demo', storage: 'sqlite' }));
+  app.get('/api/health', (req, res) =>
+    res.json({ ok: true, mode: 'demo', storage: 'sqlite', version: '2.0.0' })
+  );
   app.get('/api/catalog', (req, res) =>
     res.json({ fabrics, options, labels, defaults, metricRanges, statusLabels, providers })
   );
@@ -296,7 +309,7 @@ export function createApp({
     res.json(recommendations(req.query.city, req.query.simulateFailure === '1'))
   );
   app.post('/api/captions', requireAuth, (req, res) =>
-    res.json(caption(req.body.config, !!req.body.simulateFailure))
+    res.json(caption(req.body.config, !!req.body.simulateFailure, req.body.locale))
   );
   app.get('/api/partners', (req, res) => {
     const { lat, lon, city } = req.query;
@@ -317,6 +330,22 @@ export function createApp({
       nearby({ city, lat: geo ? Number(lat) : undefined, lon: geo ? Number(lon) : undefined })
     );
   });
+  const postSearchText = (p) => {
+    const config = JSON.parse(p.config),
+      edit = editorialById[p.id];
+    return [
+      p.caption,
+      config.fabricId,
+      fabrics.find((f) => f.id === config.fabricId)?.name,
+      edit?.captionEn,
+      edit?.title,
+      edit?.kicker,
+      db.prepare('SELECT name FROM users WHERE id=?').get(p.user_id)?.name,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+  };
   app.get('/api/search', (req, res) => {
     const q = String(req.query.q || '')
       .trim()
@@ -325,17 +354,7 @@ export function createApp({
     if (!q) return res.json({ source: 'demo', results: [] });
     const all = db.prepare('SELECT * FROM posts ORDER BY created DESC LIMIT 100').all();
     const results = all
-      .filter((p) =>
-        (
-          p.caption +
-          ' ' +
-          (fabrics.find((f) => f.id === JSON.parse(p.config).fabricId)?.name || '') +
-          ' ' +
-          (db.prepare('SELECT name FROM users WHERE id=?').get(p.user_id)?.name || '')
-        )
-          .toLowerCase()
-          .includes(q)
-      )
+      .filter((p) => postSearchText(p).includes(q))
       .slice(0, 12)
       .map((p) => ({
         id: p.id,
@@ -353,16 +372,7 @@ export function createApp({
       category = req.query.category;
     let rows = db.prepare('SELECT * FROM posts ORDER BY created DESC LIMIT 200').all();
     if (category && category !== 'all') rows = rows.filter((p) => p.category === category);
-    if (q)
-      rows = rows.filter((p) =>
-        (
-          p.caption +
-          ' ' +
-          (fabrics.find((f) => f.id === JSON.parse(p.config).fabricId)?.name || '')
-        )
-          .toLowerCase()
-          .includes(q)
-      );
+    if (q) rows = rows.filter((p) => postSearchText(p).includes(q));
     res.json({ posts: rows.map((p) => postRow(p, req.user?.id)), source: 'demo' });
   });
   app.get('/api/posts/:id', (req, res) => {
@@ -627,7 +637,7 @@ export function createApp({
     });
   });
   app.use('/api', (req, res) => res.status(404).json({ error: '接口不存在' }));
-  if (existsSync(path.join(root, 'dist/index.html'))) {
+  if (serveFrontend && existsSync(path.join(root, 'dist/index.html'))) {
     app.use(express.static(path.join(root, 'dist')));
     app.get('/{*path}', (req, res) => res.sendFile(path.join(root, 'dist/index.html')));
   }

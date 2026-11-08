@@ -32,7 +32,7 @@ const width = computed(() =>
     class="garment-art"
     viewBox="0 0 320 500"
     role="img"
-    :aria-label="'定制服装预览：' + c.garmentType"
+    :aria-label="$t('定制服装预览：' + c.garmentType)"
   >
     <g v-if="scene" fill="none" stroke="currentColor" opacity=".08">
       <path d="M18 500V135a142 142 0 0 1 284 0v365M40 500V139a120 120 0 0 1 240 0v361" />

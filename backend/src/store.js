@@ -2,7 +2,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { randomBytes } from 'node:crypto';
 import path from 'node:path';
-import { defaults } from './catalog.js';
+import { editorial } from '../../shared/editorial.js';
 export function openStore(dataDir) {
   mkdirSync(path.join(dataDir, 'uploads'), { recursive: true });
   const secretPath = path.join(dataDir, 'secret.key');
@@ -37,57 +37,22 @@ export function openStore(dataDir) {
       'editor@smartfit.example',
       now
     );
-    const posts = [
-      [
-        'seed-1',
-        '把周末穿成喜欢的样子。鼠尾草绿与天然亚麻，是我给自己的小小留白。',
-        'daily',
-        { ...defaults },
-      ],
-      [
-        'seed-2',
-        '周一的好状态，从一件合身的丝质上装开始。',
-        'work',
-        {
-          ...defaults,
-          garmentType: 'top',
-          length: 'short',
-          fabricId: 'silk',
-          colorHex: '#D8B4A6',
-          silhouette: 'straight',
-          collar: 'v-neck',
-        },
-      ],
-      [
-        'seed-3',
-        '日落之前，赴一场属于自己的约会。',
-        'occasion',
-        {
-          ...defaults,
-          fabricId: 'silk',
-          colorHex: '#73566D',
-          length: 'maxi',
-          sleeve: 'sleeveless',
-          collar: 'square',
-        },
-      ],
-      [
-        'seed-4',
-        '柔软有机棉，让每一次出门都轻一点。',
-        'daily',
-        { ...defaults, fabricId: 'cotton', colorHex: '#B7C5D3', sleeve: 'long' },
-      ],
-    ];
-    for (const [id, caption, category, config] of posts)
-      db.prepare('INSERT INTO posts VALUES(?,?,?,?,?,?,?)').run(
-        id,
-        'seed',
-        caption,
-        category,
-        JSON.stringify(config),
-        null,
-        now
-      );
   }
+  db.prepare("UPDATE users SET name=? WHERE id='seed'").run('SmartFit 編輯部');
+  // Migrate only official editorial rows; preserve every user post, reaction and order.
+  const saveEditorial =
+    db.prepare(`INSERT INTO posts(id,user_id,caption,category,config,image_url,created)
+    VALUES(?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET caption=excluded.caption,
+    category=excluded.category,config=excluded.config,image_url=excluded.image_url WHERE posts.user_id='seed'`);
+  for (const post of editorial)
+    saveEditorial.run(
+      post.id,
+      'seed',
+      post.caption,
+      post.category,
+      JSON.stringify(post.config),
+      post.imageUrl,
+      '2026-11-01T10:00:00.000Z'
+    );
   return { db, key };
 }

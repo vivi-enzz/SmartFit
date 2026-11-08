@@ -4,6 +4,7 @@ import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import Icon from './components/Icon.vue';
 import { api } from './api';
+import { locale, setLocale } from './i18n';
 const store = useStore(),
   route = useRoute(),
   router = useRouter(),
@@ -11,7 +12,9 @@ const store = useStore(),
   q = ref(''),
   results = ref([]),
   searchOpen = ref(false);
-let timer, toastTimer;
+let timer,
+  toastTimer,
+  generation = 0;
 watch(
   () => route.fullPath,
   () => {
@@ -21,14 +24,19 @@ watch(
 );
 watch(q, (v) => {
   clearTimeout(timer);
+  const current = ++generation;
   if (!v.trim()) {
     results.value = [];
+    searchOpen.value = false;
     return;
   }
   timer = setTimeout(async () => {
     try {
-      results.value = (await api('/search?q=' + encodeURIComponent(v))).results;
-      searchOpen.value = true;
+      const r = await api('/search?q=' + encodeURIComponent(v));
+      if (current === generation) {
+        results.value = r.results;
+        searchOpen.value = true;
+      }
     } catch {
       results.value = [];
     }
@@ -46,10 +54,10 @@ onUnmounted(() => {
   clearTimeout(toastTimer);
 });
 const nav = [
-  ['/', '发现灵感'],
-  ['/studio', '定制工作室'],
-  ['/community', '穿搭社区'],
-  ['/partners', '附近服务'],
+  ['/', '探索靈感'],
+  ['/studio', '訂製工作室'],
+  ['/community', '穿搭社群'],
+  ['/partners', '線下服務'],
 ];
 function search() {
   router.push({ path: '/community', query: { q: q.value } });
@@ -57,21 +65,23 @@ function search() {
 }
 </script>
 <template>
-  <a class="skip-link" href="#main">跳到主要内容</a>
-  <div class="topnote">为你而制 · 按需生产 · 每一件都有自己的故事 <span>SEEM5760 演示版</span></div>
+  <a class="skip-link" href="#main">{{ $t('跳到主要內容') }}</a>
+  <div class="commerce-ribbon">
+    <span>YOUR STYLE. YOUR FIT.</span><span>{{ $t('靈感無界 · 風格由你') }}</span
+    ><RouterLink to="/studio">{{ $t('探索專屬訂製 ↗') }}</RouterLink>
+  </div>
   <header class="header">
     <div class="nav-wrap">
-      <RouterLink to="/" class="brand" aria-label="SmartFit 首页"
-        ><span class="brand-mark">s<span>f</span></span
-        >SmartFit<span class="brand-dot">.</span></RouterLink
+      <RouterLink to="/" class="brand" :aria-label="$t('SmartFit 首頁')"
+        >smartfit<span class="brand-dot">®</span></RouterLink
       >
-      <nav class="desktop-nav" aria-label="主导航">
+      <nav class="desktop-nav" :aria-label="$t('主導航')">
         <RouterLink
           v-for="[url, label] in nav"
           :key="url"
           :to="url"
           :class="{ active: url === '/' ? route.path === '/' : route.path.startsWith(url) }"
-          >{{ label }}</RouterLink
+          >{{ $t(label) }}<span v-if="url === '/studio'" class="nav-new">NEW</span></RouterLink
         >
       </nav>
       <div class="nav-actions">
@@ -79,28 +89,35 @@ function search() {
           <form class="search" @submit.prevent="search">
             <Icon name="search" :size="17" /><input
               v-model="q"
-              aria-label="搜索穿搭与面料"
-              placeholder="搜索灵感、面料…"
+              :aria-label="$t('搜尋穿搭與面料')"
+              :placeholder="$t('搜尋你的下一個風格')"
               @focus="searchOpen = !!q"
               @keydown.esc="searchOpen = false"
-            /><button class="sr-only">搜索</button>
+            /><button class="sr-only">{{ $t('搜尋') }}</button>
           </form>
           <div v-if="searchOpen" class="search-results">
             <RouterLink v-for="r in results" :key="r.id" :to="'/community/' + r.id">{{
-              r.title
+              $t(r.title)
             }}</RouterLink>
-            <p v-if="!results.length">没有匹配结果，试试“亚麻”。</p>
-            <button class="text-button" @click="searchOpen = false">关闭</button>
+            <p v-if="!results.length">{{ $t('未找到靈感，試試「亞麻」。') }}</p>
+            <button class="text-button" @click="searchOpen = false">{{ $t('關閉') }}</button>
           </div>
         </div>
-        <RouterLink to="/designs" class="icon-button" aria-label="我的设计"
+        <button
+          class="language-switch"
+          @click="setLocale(locale === 'en' ? 'zh-Hant' : 'en')"
+          :aria-label="$t(locale === 'en' ? '切換至繁體中文' : 'Switch to English')"
+        >
+          <span :class="{ on: locale === 'zh-Hant' }">{{ $t('繁') }}</span
+          ><i>/</i><span :class="{ on: locale === 'en' }">EN</span></button
+        ><RouterLink to="/designs" class="icon-button" :aria-label="$t('我的設計')"
           ><Icon name="bag" /></RouterLink
-        ><RouterLink to="/account" class="avatar" aria-label="账户">{{
-          store.state.user ? store.state.user.name.slice(0, 1) : 'S'
+        ><RouterLink to="/account" class="avatar" :aria-label="$t('我的帳戶')">{{
+          $t(store.state.user ? store.state.user.name.slice(0, 1) : 'SF')
         }}</RouterLink
         ><button
           class="icon-button mobile-menu"
-          aria-label="展开导航"
+          :aria-label="$t('展開導覽')"
           :aria-expanded="menu"
           @click="menu = !menu"
         >
@@ -108,30 +125,39 @@ function search() {
         </button>
       </div>
     </div>
-    <nav v-if="menu" class="mobile-nav" aria-label="移动导航">
+    <nav v-if="menu" class="mobile-nav">
       <RouterLink
-        v-for="[url, label] in [...nav, ['/designs', '我的设计'], ['/orders', '我的订单']]"
+        v-for="[url, label] in [...nav, ['/designs', '我的設計'], ['/orders', '我的訂單']]"
         :key="url"
         :to="url"
-        >{{ label }}</RouterLink
+        >{{ $t(label) }}</RouterLink
       >
     </nav>
   </header>
   <main id="main" tabindex="-1"><RouterView /></main>
   <footer class="footer">
-    <RouterLink to="/" class="brand">SmartFit.</RouterLink>
-    <p>合身，自有风格。<span>Made for you. Mindfully.</span></p>
     <div>
-      <RouterLink to="/designs">我的设计</RouterLink><RouterLink to="/orders">我的订单</RouterLink
-      ><RouterLink to="/account">账户与隐私</RouterLink>
+      <RouterLink to="/" class="brand">smartfit<span class="brand-dot">®</span></RouterLink>
+      <p>{{ $t('風格不設限。合身，由你定義。') }}</p>
+      <small>DESIGNED AROUND YOU.</small>
     </div>
-    <small>© 2026 SmartFit · SEEM5760 课程演示 · 全部支付与外部服务均为模拟</small>
+    <div class="footer-links">
+      <RouterLink to="/studio">{{ $t('開始訂製') }}</RouterLink
+      ><RouterLink to="/community">{{ $t('穿搭社群') }}</RouterLink
+      ><RouterLink to="/orders">{{ $t('訂單追蹤') }}</RouterLink
+      ><RouterLink to="/account">{{ $t('帳戶與隱私') }}</RouterLink
+      ><RouterLink to="/credits">{{ $t('攝影與模型來源') }}</RouterLink>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 SmartFit. All styles welcome.</span
+      ><span>{{ $t('SEEM5760 展示版本 · 付款與外部服務為模擬') }}</span>
+    </div>
   </footer>
   <div v-if="store.state.toast" :class="['toast', { error: store.state.error }]" role="status">
-    <Icon :name="store.state.error ? 'close' : 'check'" />{{ store.state.toast
+    <Icon :name="store.state.error ? 'close' : 'check'" />{{ $t(store.state.toast)
     }}<button
       class="icon-button"
-      aria-label="关闭提示"
+      :aria-label="$t('關閉提示')"
       @click="store.commit('toast', { message: '' })"
     >
       <Icon name="close" :size="16" />

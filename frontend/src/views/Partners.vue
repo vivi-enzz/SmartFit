@@ -53,37 +53,39 @@ const list = computed(() => partners.value.filter((p) => !partnerOnly.value || p
     <div class="page-heading">
       <div>
         <div class="eyebrow">A HUMAN TOUCH, NEAR YOU</div>
-        <h1>好的合身，也可以从见面开始。</h1>
-        <p>发现身边的量体与面料服务，让定制多一份安心。</p>
+        <h1>{{ $t('好的合身，也可以从见面开始。') }}</h1>
+        <p>{{ $t('发现身边的量体与面料服务，让定制多一份安心。') }}</p>
       </div>
     </div>
     <div class="partners-toolbar">
       <label class="city-select"
         ><Icon name="pin" :size="17" /><select
           v-model="city"
-          aria-label="选择服务城市"
+          :aria-label="$t('选择服务城市')"
           @change="changeCity"
         >
-          <option value="Hong Kong">香港</option>
-          <option value="Shanghai">上海</option>
-          <option value="Beijing">北京</option>
-          <option value="Shenzhen">深圳</option>
+          <option value="Hong Kong">{{ $t('香港') }}</option>
+          <option value="Shanghai">{{ $t('上海') }}</option>
+          <option value="Beijing">{{ $t('北京') }}</option>
+          <option value="Shenzhen">{{ $t('深圳') }}</option>
         </select></label
       ><button class="secondary small" :disabled="loading" @click="locate">
-        <Icon name="pin" :size="16" />使用我的位置</button
-      ><label class="checkbox"><input v-model="partnerOnly" type="checkbox" />仅看演示合作商</label
-      ><span class="demo-label">全部为虚构示例店铺 · 无真实预约</span>
+        <Icon name="pin" :size="16" />{{ $t('使用我的位置') }}</button
+      ><label class="checkbox"
+        ><input v-model="partnerOnly" type="checkbox" />{{ $t('仅看演示合作商') }}</label
+      ><span class="demo-label">{{ $t('全部为虚构示例店铺 · 无真实预约') }}</span>
     </div>
-    <p v-if="error" class="error-box" role="alert">{{ error }}</p>
+    <p v-if="error" class="error-box" role="alert">{{ $t(error) }}</p>
     <div class="partners-layout">
       <section class="partner-list">
         <h2>
-          {{ located ? '附近 5 公里' : '所选城市' }} <span>{{ list.length }} 家示例服务</span>
+          {{ $t(located ? '附近 5 公里' : '所选城市') }}
+          <span>{{ $t(list.length) }}{{ $t('家示例服务') }}</span>
         </h2>
-        <p v-if="loading" class="loading-state">正在寻找服务…</p>
+        <p v-if="loading" class="loading-state">{{ $t('正在寻找服务…') }}</p>
         <div v-else-if="!list.length" class="empty-state">
-          <h3>这里暂时没有示例店铺。</h3>
-          <p>可手动切换至香港体验完整示例。</p>
+          <h3>{{ $t('这里暂时没有示例店铺。') }}</h3>
+          <p>{{ $t('可手动切换至香港体验完整示例。') }}</p>
         </div>
         <article
           v-for="(p, i) in list"
@@ -92,21 +94,21 @@ const list = computed(() => partners.value.filter((p) => !partnerOnly.value || p
           @mouseenter="selected = p.id"
         >
           <div class="partner-top">
-            <span class="partner-number">{{ String(i + 1).padStart(2, '0') }}</span>
+            <span class="partner-number">{{ $t(String(i + 1).padStart(2, '0')) }}</span>
             <div>
-              <h3>{{ p.name }}</h3>
+              <h3>{{ $t(p.name) }}</h3>
               <span :class="['partner-badge', { general: !p.partner }]">{{
-                p.partner ? 'SmartFit 演示合作商' : '普通示例店铺'
+                $t(p.partner ? 'SmartFit 演示合作商' : '普通示例店铺')
               }}</span>
             </div>
-            <small v-if="p.distance !== undefined">{{ p.distance }} km</small>
+            <small v-if="p.distance !== undefined">{{ $t(p.distance) }} km</small>
           </div>
-          <p><Icon name="pin" :size="14" />{{ p.address }}</p>
+          <p><Icon name="pin" :size="14" />{{ $t(p.address) }}</p>
           <div class="service-tags">
-            <span v-for="s in p.services" :key="s">{{ s }}</span>
+            <span v-for="s in p.services" :key="s">{{ $t(s) }}</span>
           </div>
           <div class="partner-bottom">
-            <b>{{ p.price }}</b
+            <b>{{ $t(p.price) }}</b
             ><button
               class="text-button"
               @click="
@@ -114,7 +116,7 @@ const list = computed(() => partners.value.filter((p) => !partnerOnly.value || p
                 detail = p;
               "
             >
-              查看服务信息 ↗
+              {{ $t('查看服务信息 ↗') }}
             </button>
           </div>
         </article>
@@ -125,50 +127,53 @@ const list = computed(() => partners.value.filter((p) => !partnerOnly.value || p
         <div class="map-road road-a"></div>
         <div class="map-road road-b"></div>
         <span class="map-area area-a">{{
-          city === 'Hong Kong'
-            ? '中环'
-            : city === 'Shanghai'
-              ? '静安'
-              : city === 'Beijing'
-                ? '朝阳'
-                : '南山'
+          $t(
+            city === 'Hong Kong'
+              ? '中环'
+              : city === 'Shanghai'
+                ? '静安'
+                : city === 'Beijing'
+                  ? '朝阳'
+                  : '南山'
+          )
         }}</span
-        ><span class="map-area area-b">{{ city === 'Hong Kong' ? '湾仔' : '城市中心' }}</span
+        ><span class="map-area area-b">{{ $t(city === 'Hong Kong' ? '湾仔' : '城市中心') }}</span
         ><span class="map-water">{{
-          city === 'Hong Kong' ? 'VICTORIA HARBOUR' : 'SMARTFIT LOCAL'
+          $t(city === 'Hong Kong' ? 'VICTORIA HARBOUR' : 'SMARTFIT LOCAL')
         }}</span
         ><button
           v-for="(p, i) in list"
           :key="p.id"
           :class="['map-marker', { selected: selected === p.id }]"
           :style="{ left: ((25 + i * 19) % 70) + 10 + '%', top: ((28 + i * 17) % 65) + 10 + '%' }"
-          :aria-label="'查看' + p.name"
+          :aria-label="$t('查看' + p.name)"
           @click="
             selected = p.id;
             detail = p;
           "
         >
-          <Icon name="pin" :size="25" /><span>{{ i + 1 }}</span>
+          <Icon name="pin" :size="25" /><span>{{ $t(i + 1) }}</span>
         </button>
         <div class="map-disclaimer">
           <Icon name="pin" :size="16" />
           <div>
-            <b>服务位置示意图</b>
-            <p>非真实地图，不提供导航或实际距离比例。</p>
+            <b>{{ $t('服务位置示意图') }}</b>
+            <p>{{ $t('非真实地图，不提供导航或实际距离比例。') }}</p>
           </div>
         </div>
       </div>
     </div>
     <div v-if="detail" class="panel service-detail">
-      <button class="icon-button" aria-label="关闭服务详情" @click="detail = null">
+      <button class="icon-button" :aria-label="$t('关闭服务详情')" @click="detail = null">
         <Icon name="close" />
       </button>
       <div class="eyebrow">PARTNER DETAILS · DEMO</div>
-      <h2>{{ detail.name }}</h2>
-      <p>{{ detail.services.join(' · ') }}</p>
-      <p>{{ detail.address }} · {{ detail.price }}</p>
+      <h2>{{ $t(detail.name) }}</h2>
+      <p>{{ $t(detail.services.join(' · ')) }}</p>
+      <p>{{ $t(detail.address) }} · {{ $t(detail.price) }}</p>
       <p class="muted">
-        {{ detail.phone }}。此处展示的是线下服务发现流程；店铺信息不代表真实合作关系。
+        {{ $t(detail.phone)
+        }}{{ $t('。此处展示的是线下服务发现流程；店铺信息不代表真实合作关系。') }}
       </p>
     </div>
   </div>

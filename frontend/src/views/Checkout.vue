@@ -53,104 +53,113 @@ async function checkout() {
 </script>
 <template>
   <div class="page checkout-page">
-    <RouterLink to="/designs" class="back-link">← 返回我的设计</RouterLink>
+    <RouterLink to="/designs" class="back-link">{{ $t('← 返回我的设计') }}</RouterLink>
     <div class="page-heading">
       <div>
         <div class="eyebrow">A PIECE, JUST FOR YOU</div>
-        <h1>离专属作品，更近一步。</h1>
-        <p>确认你的选择，接下来的故事交给我们。</p>
+        <h1>{{ $t('离专属作品，更近一步。') }}</h1>
+        <p>{{ $t('确认你的选择，接下来的故事交给我们。') }}</p>
       </div>
-      <span class="pill"><Icon name="lock" :size="14" />演示结算</span>
+      <span class="pill"><Icon name="lock" :size="14" />{{ $t('演示结算') }}</span>
     </div>
-    <p v-if="error" class="error-box" role="alert">{{ error }}</p>
+    <p v-if="error" class="error-box" role="alert">{{ $t(error) }}</p>
     <div v-if="design" class="checkout-layout">
       <form class="panel" @submit.prevent="checkout">
-        <h2>收货信息</h2>
-        <p class="small-note">此为本地演示，请使用虚构姓名、电话和地址。</p>
+        <h2>{{ $t('收货信息') }}</h2>
+        <p class="small-note">{{ $t('此为本地演示，请使用虚构姓名、电话和地址。') }}</p>
         <label class="field"
-          >收件人<input
+          >{{ $t('收件人')
+          }}<input
             v-model="address.name"
             required
             maxlength="60"
-            placeholder="例如：林女士"
+            :placeholder="$t('例如：林女士')"
             autocomplete="off" /></label
         ><label class="field"
-          >联系电话<input
+          >{{ $t('联系电话')
+          }}<input
             v-model="address.phone"
             required
             type="tel"
             minlength="6"
             maxlength="30"
-            placeholder="例如：91234567"
+            :placeholder="$t('例如：91234567')"
             autocomplete="off" /></label
         ><label class="field"
-          >详细地址<textarea
+          >{{ $t('详细地址')
+          }}<textarea
             v-model="address.line"
             required
             minlength="5"
             maxlength="250"
             rows="3"
-            placeholder="例如：香港中环示例街 10 号"
+            :placeholder="$t('例如：香港中环示例街 10 号')"
             autocomplete="off"
           ></textarea>
         </label>
         <div class="measurement-note">
           <Icon name="user" :size="20" />
           <div>
-            <b>{{ hasMetrics ? '已保存身体尺寸' : '使用标准参考尺寸' }}</b>
+            <b>{{ $t(hasMetrics ? '已保存身体尺寸' : '使用标准参考尺寸') }}</b>
             <p>
               {{
-                hasMetrics
-                  ? '订单将注明使用已同意保存的量体档案。'
-                  : '你尚未保存身体尺寸，可返回工作室完善。'
-              }}本次为流程演示，不会提交制造请求。
+                $t(
+                  hasMetrics
+                    ? '订单将注明使用已同意保存的量体档案。'
+                    : '你尚未保存身体尺寸，可返回工作室完善。'
+                )
+              }}{{ $t('本次为流程演示，不会提交制造请求。') }}
             </p>
-            <RouterLink to="/studio" class="text-button">前往工作室编辑身形 ↗</RouterLink>
+            <RouterLink to="/studio" class="text-button">{{
+              $t('前往工作室编辑身形 ↗')
+            }}</RouterLink>
           </div>
         </div>
         <label class="checkbox"
-          ><input
-            v-model="consent"
-            required
-            type="checkbox"
-          />我了解本次为演示订单，后续支付不会产生真实扣款。</label
+          ><input v-model="consent" required type="checkbox" />{{
+            $t('我了解本次为演示订单，后续支付不会产生真实扣款。')
+          }}</label
         ><button class="primary full" :disabled="busy || !consent">
-          {{ busy ? '正在创建订单…' : '确认订单，前往模拟支付' }}<Icon name="arrow" :size="17" />
+          {{ $t(busy ? '正在创建订单…' : '确认订单，前往模拟支付')
+          }}<Icon name="arrow" :size="17" />
         </button>
       </form>
       <aside class="order-summary panel">
         <div class="checkout-art"><GarmentArt :config="design.config" /></div>
-        <small>你的专属定制</small>
-        <h2>{{ design.name }}</h2>
+        <small>{{ $t('你的专属定制') }}</small>
+        <h2>{{ $t(design.name) }}</h2>
         <dl>
           <div>
-            <dt>面料</dt>
-            <dd>{{ fabrics.find((f) => f.id === design.config.fabricId)?.name }}</dd>
+            <dt>{{ $t('面料') }}</dt>
+            <dd>{{ $t(fabrics.find((f) => f.id === design.config.fabricId)?.name) }}</dd>
           </div>
           <div>
-            <dt>版型</dt>
-            <dd>{{ labels[design.config.silhouette] }}</dd>
+            <dt>{{ $t('版型') }}</dt>
+            <dd>{{ $t(labels[design.config.silhouette]) }}</dd>
           </div>
           <div>
-            <dt>颜色</dt>
+            <dt>{{ $t('颜色') }}</dt>
             <dd>
               <span class="tiny-color" :style="{ background: design.config.colorHex }"></span
-              >{{ design.config.colorHex }}
+              >{{ $t(design.config.colorHex) }}
             </dd>
           </div>
           <div>
-            <dt>运费</dt>
-            <dd>免费（演示）</dd>
+            <dt>{{ $t('运费') }}</dt>
+            <dd>{{ $t('免费（演示）') }}</dd>
           </div>
         </dl>
         <div class="total-line">
-          <span>订单总额</span><strong>{{ money(design.price) }}</strong>
+          <span>{{ $t('订单总额') }}</span
+          ><strong>{{ $t(money(design.price)) }}</strong>
         </div>
         <p class="small-note">
-          服务端会重新核对价格并保存不可变的订单配置。原设计后续的修改不会影响已创建的订单。
+          {{
+            $t('服务端会重新核对价格并保存不可变的订单配置。原设计后续的修改不会影响已创建的订单。')
+          }}
         </p>
       </aside>
     </div>
-    <div v-else-if="!error" class="loading-state">正在核对设计…</div>
+    <div v-else-if="!error" class="loading-state">{{ $t('正在核对设计…') }}</div>
   </div>
 </template>

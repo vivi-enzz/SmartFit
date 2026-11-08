@@ -1,6 +1,7 @@
 <script setup>
 import GarmentArt from './GarmentArt.vue';
 import Icon from './Icon.vue';
+import { locale } from '../i18n';
 defineProps({ post: Object });
 defineEmits(['like']);
 </script>
@@ -10,27 +11,36 @@ defineEmits(['like']);
       ><img
         v-if="post.imageUrl"
         :src="post.imageUrl"
-        :alt="post.caption.slice(0, 50)"
+        :alt="$t(locale === 'en' && post.captionEn ? post.captionEn : post.caption.slice(0, 80))"
         loading="lazy"
-      /><GarmentArt v-else :config="post.config" /><span class="post-tag">{{
-        { daily: '日常灵感', work: '通勤穿搭', occasion: '特别时刻' }[post.category]
-      }}</span></RouterLink
-    >
+        decoding="async" /><GarmentArt v-else :config="post.config" /><span
+        v-if="post.editorial"
+        class="post-tag"
+        >{{ $t('編輯精選') }}</span
+      ><span v-else class="post-tag">{{ $t('原創設計') }}</span
+      ><span class="post-look-arrow"><Icon name="arrow" :size="17" /></span
+    ></RouterLink>
     <div class="post-card-copy">
-      <RouterLink :to="'/community/' + post.id"
-        ><h3>{{ post.caption }}</h3></RouterLink
+      <small v-if="post.kicker" class="post-kicker">{{ $t(post.kicker) }}</small
+      ><RouterLink :to="'/community/' + post.id"
+        ><h3>
+          {{ $t(locale === 'en' && post.captionEn ? post.captionEn : post.caption) }}
+        </h3></RouterLink
       >
       <div class="post-card-footer">
         <span
-          ><span class="user-dot">{{ post.author.slice(0, 1) }}</span
-          >{{ post.author }}</span
+          ><span class="user-dot" :class="{ 'editor-dot': post.editorial }">{{
+            $t(post.editorial ? 'SF' : post.author.slice(0, 1))
+          }}</span
+          >{{ $t(post.editorial ? 'SmartFit Edit' : post.author)
+          }}<Icon v-if="post.editorial" name="check" :size="12" /></span
         ><button
           :class="['like-button', { liked: post.liked }]"
-          :aria-label="post.liked ? '取消点赞' : '点赞'"
+          :aria-label="$t(post.liked ? '取消喜歡' : '喜歡這套穿搭')"
           :aria-pressed="post.liked"
           @click="$emit('like', post)"
         >
-          <Icon name="heart" :size="17" />{{ post.likes }}
+          <Icon name="heart" :size="17" /><span v-if="post.likes">{{ $t(post.likes) }}</span>
         </button>
       </div>
     </div>

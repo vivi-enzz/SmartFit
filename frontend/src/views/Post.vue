@@ -6,6 +6,7 @@ import { api, money, date } from '../api';
 import { fabrics, estimatePrice } from '../../../shared/catalog';
 import GarmentArt from '../components/GarmentArt.vue';
 import Icon from '../components/Icon.vue';
+import { locale } from '../i18n';
 import { useRouteResource } from '../routeResource';
 const route = useRoute(),
   router = useRouter(),
@@ -74,75 +75,95 @@ async function share() {
 </script>
 <template>
   <div class="page">
-    <RouterLink to="/community" class="back-link">← 返回穿搭社区</RouterLink>
-    <p v-if="error" class="error-box" role="alert">{{ error }}</p>
+    <RouterLink to="/community" class="back-link">{{ $t('← 返回穿搭社区') }}</RouterLink>
+    <p v-if="error" class="error-box" role="alert">{{ $t(error) }}</p>
     <div v-if="post" class="post-detail">
       <div class="post-detail-art">
         <img
           v-if="post.imageUrl"
           :src="post.imageUrl"
-          :alt="post.caption.slice(0, 60)"
+          :alt="$t(post.caption.slice(0, 60))"
         /><GarmentArt v-else :config="post.config" />
       </div>
       <article>
         <div class="author-line">
-          <span class="avatar">{{ post.author.slice(0, 1) }}</span>
+          <span class="avatar">{{ $t(post.author.slice(0, 1)) }}</span>
           <div>
-            <b>{{ post.author }}</b
-            ><small>{{ date(post.created) }}</small>
+            <b>{{ $t(post.author) }}</b
+            ><small>{{ $t(date(post.created)) }}</small>
           </div>
         </div>
-        <h1 class="post-caption">{{ post.caption }}</h1>
+        <div v-if="post.editorial" class="editorial-badge">
+          {{ $t('SMARTFIT EDIT · 編輯精選') }}
+        </div>
+        <h1 class="post-caption">
+          {{ $t(locale === 'en' && post.captionEn ? post.captionEn : post.caption) }}
+        </h1>
+        <p v-if="post.editorial" class="editorial-photo-note">
+          {{
+            $t(
+              '攝影來源：Unsplash。此為編輯靈感選集，非照片人物投稿或購買見證。訂製配置為風格延伸，非照片服裝的精確複製。'
+            )
+          }}<RouterLink to="/credits">{{ $t('查看來源 ↗') }}</RouterLink>
+        </p>
         <div class="post-interactions">
           <button
             :class="['secondary', { liked: post.liked }]"
             :aria-pressed="post.liked"
             @click="like"
           >
-            <Icon name="heart" :size="18" />{{ post.likes }} 人喜欢</button
+            <Icon name="heart" :size="18" />{{ $t(post.likes) }}{{ $t('人喜欢') }}</button
           ><button class="secondary" @click="share">
-            <Icon name="share" :size="17" />分享灵感
+            <Icon name="share" :size="17" />{{ $t('分享灵感') }}
           </button>
         </div>
         <label v-if="shareUrl" class="field"
-          >复制这个链接分享<input :value="shareUrl" readonly @focus="$event.target.select()"
+          >{{ $t('复制这个链接分享')
+          }}<input :value="shareUrl" readonly @focus="$event.target.select()"
         /></label>
         <section class="buy-look">
           <div>
-            <small>灵感同款 · 可自由定制</small>
-            <h3>{{ fabrics.find((f) => f.id === post.config.fabricId)?.name }} · 专属设计</h3>
-            <strong>{{ money(estimatePrice(post.config)) }}</strong>
+            <small>{{ $t('灵感同款 · 可自由定制') }}</small>
+            <h3>
+              {{ $t(fabrics.find((f) => f.id === post.config.fabricId)?.name)
+              }}{{ $t('· 专属设计') }}
+            </h3>
+            <strong>{{ $t(money(estimatePrice(post.config))) }}</strong>
           </div>
           <RouterLink :to="{ path: '/studio', query: { look: post.id } }" class="primary small"
-            >定制这一套<Icon name="arrow" :size="17"
+            >{{ $t('定制这一套') }}<Icon name="arrow" :size="17"
           /></RouterLink>
         </section>
         <section class="comments">
           <h2>
-            聊聊这份灵感 <span>{{ post.comments.length }}</span>
+            {{ $t('聊聊这份灵感') }}<span>{{ $t(post.comments.length) }}</span>
           </h2>
           <form @submit.prevent="send">
-            <label class="sr-only" for="comment">评论</label
+            <label class="sr-only" for="comment">{{ $t('评论') }}</label
             ><input
               id="comment"
               v-model="comment"
               maxlength="500"
               required
-              placeholder="说说你的搭配想法…"
-            /><button class="primary small" :disabled="busy || !comment.trim()">发送</button>
+              :placeholder="$t('说说你的搭配想法…')"
+            /><button class="primary small" :disabled="busy || !comment.trim()">
+              {{ $t('发送') }}
+            </button>
           </form>
           <div v-for="c in post.comments" :key="c.id" class="comment">
-            <span class="user-dot">{{ c.author.slice(0, 1) }}</span>
+            <span class="user-dot">{{ $t(c.author.slice(0, 1)) }}</span>
             <div>
-              <b>{{ c.author }}</b>
-              <p>{{ c.content }}</p>
-              <small>{{ date(c.created) }}</small>
+              <b>{{ $t(c.author) }}</b>
+              <p>{{ $t(c.content) }}</p>
+              <small>{{ $t(date(c.created)) }}</small>
             </div>
           </div>
-          <p v-if="!post.comments.length" class="muted">还没有评论，来分享第一个想法吧。</p>
+          <p v-if="!post.comments.length" class="muted">
+            {{ $t('还没有评论，来分享第一个想法吧。') }}
+          </p>
         </section>
       </article>
     </div>
-    <div v-else-if="!error" class="loading-state">正在打开这份灵感…</div>
+    <div v-else-if="!error" class="loading-state">{{ $t('正在打开这份灵感…') }}</div>
   </div>
 </template>

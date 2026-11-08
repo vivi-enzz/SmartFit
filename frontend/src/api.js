@@ -1,3 +1,4 @@
+import { locale } from './i18n.js';
 export async function api(path, options = {}) {
   const isForm = options.body instanceof FormData;
   let response;
@@ -28,7 +29,7 @@ export const money = (n) =>
   'HK$ ' +
   (n / 100).toLocaleString('en-HK', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
 export const date = (s) =>
-  new Date(s).toLocaleString('zh-CN', {
+  new Date(s).toLocaleString(locale.value === 'en' ? 'en-HK' : 'zh-HK', {
     month: 'short',
     day: 'numeric',
     hour: '2-digit',

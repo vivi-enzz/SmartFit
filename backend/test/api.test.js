@@ -179,12 +179,10 @@ test('uploads reject fake and oversize files and store valid reencoded images', 
   );
   assert.equal(
     (
-      await a
-        .post('/api/uploads')
-        .attach('image', Buffer.alloc(5 * 1024 * 1024 + 1), {
-          filename: 'big.jpg',
-          contentType: 'image/jpeg',
-        })
+      await a.post('/api/uploads').attach('image', Buffer.alloc(5 * 1024 * 1024 + 1), {
+        filename: 'big.jpg',
+        contentType: 'image/jpeg',
+      })
     ).status,
     413
   );

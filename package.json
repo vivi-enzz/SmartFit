@@ -1,16 +1,17 @@
 {
   "name": "smartfit-app",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "concurrently -k -n api,web \"npm run dev:api\" \"npm run dev:web\"",
+    "dev": "node --watch backend/src/dev.js",
     "dev:api": "node --watch backend/src/server.js",
     "dev:web": "vite --host 0.0.0.0",
     "start": "node backend/src/server.js",
     "build": "vite build",
     "test": "node --test backend/test/*.test.js frontend/test/*.test.js",
-    "test:production": "node --test backend/test/production.smoke.js"
+    "test:production": "node --test backend/test/production.smoke.js",
+    "preview": "npm run build && node backend/src/server.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",

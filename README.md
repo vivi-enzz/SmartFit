@@ -1,4 +1,4 @@
-# SmartFit · 合身，自有风格
+# SmartFit 2.0 · 穿出你的下一個版本。
 
 SEEM5760 课程项目的完整本地演示版，依据 `SmartFit_SEEM5760_Final_Review.docx` 开发。将服装定制、3D 造型预览、穿搭社区、模拟支付和履约流程串联起来。
 
@@ -12,7 +12,7 @@ npm ci
 npm run dev
 ```
 
-打开 Vite 输出的本地地址（默认 `http://localhost:5173`）。开发时前端将 `/api` 和 `/media` 请求代理至 Express 的 3001 端口。
+打开终端显示的 **http://localhost:5173**。2.0 默认使用同一个 Node 服务承载 Vue 开发页面和 API，浏览器写入请求不再经过两个端口之间的代理。保持终端运行；停止请按 Control+C。端口占用时先停止旧服务，或用 `PORT=5174 npm run dev`。
 
 构建后可由单个服务运行：
 
@@ -24,6 +24,28 @@ npm start
 打开 `http://localhost:3001`。API 和静态前端同源，不需要启动 Vite。默认监听 `0.0.0.0`；仅在可信本地环境运行。使用 HTTPS 代理时设置 `COOKIE_SECURE=true`。
 
 若 npm 默认缓存目录不可写，可使用工作区缓存，例如 `npm ci --cache ./work/npm-cache`。
+
+## 从旧版更新（Mac）
+
+先在旧服务终端按 **Control+C**，然后逐行执行：
+
+```bash
+cd ~/Downloads/SmartFit-main
+curl -fsSL https://raw.githubusercontent.com/vivi-enzz/SmartFit/main/scripts/update-local.sh -o /tmp/smartfit-update.sh
+bash /tmp/smartfit-update.sh "$PWD"
+```
+
+脚本会校验 Node 版本与项目目录，下载完整源码，先把旧源码备份到同级 `SmartFit-source-backups/`，保留原有 `backend/data/`、个人上传文件和 `.env`，安装依赖后启动新版。请勿把空的新资料目录覆盖旧的资料目录。通过 Git 克隆且无本地修改的项目，也可 `git pull` 后 `npm ci`、`npm run dev`。
+
+## 2.0 改版
+
+- 商业化黑白与珊瑚红视觉、真实摄影首页、分类推荐和穿搭瀑布流。
+- 默认繁體中文，页首可切换 English；覆盖按钮、表单、校验提示、订单状态和生成文案，语言偏好保存在浏览器。
+- 10 张本地 WebP 摄影素材和独立来源页面；官方内容标记为「編輯精選」，不冒充真实用户或购买见证。
+- 13,380 顶点 / 26,756 三角面的 CC0 数字人体、头发与眼部细节、服装领口几何和材质、摄影棚灯光；低能力设备保留二维降级。
+- 旧数据库可直接升级，编辑精选更新不会删除个人帖子、设计或订单。
+
+摄影与模型来源见 `/credits` 和 `assets/licenses/README.md`；图片已下载到 `frontend/public/editorial/`，页面运行不依赖外部图库接口。
 
 ## 演示路线
 
@@ -78,7 +100,7 @@ npm run test:production
 
 默认加密密钥首次生成后保存在 `backend/data/secret.key`，权限为 0600，随数据目录一起被 Git 忽略。**备份数据库时也需备份密钥**，否则无法恢复身体数据。不要将密钥、数据库、上传文件或 `.env` 提交到版本库。`DATA_ENCRYPTION_KEY` 可覆盖默认密钥，需为 64 位十六进制；已有数据不要随意更换密钥。
 
-Node 不会自动加载 `.env`。可复制 `.env.example` 为 `.env`，使用 `node --env-file=.env backend/src/server.js` 加载，或通过操作系统设置环境变量。`DATA_DIR` 指定数据目录，`PORT` 指定 API/生产服务端口。改变开发 API 端口时，需相应调整 `vite.config.js` 代理。
+Node 不会自动加载 `.env`。可复制 `.env.example` 为 `.env`，使用 `node --env-file=.env backend/src/server.js` 加载，或通过操作系统设置环境变量。`DATA_DIR` 指定数据目录，`PORT` 指定 API/生产服务端口。默认同源开发入口只需修改 `PORT`，不需要改代理。`dev:api` / `dev:web` 保留为进阶分开启动方式，日常请使用 `npm run dev`。
 
 一键体验每次创建不同用户；退出后无法凭邮箱找回该演示账户，需持续使用或先导出数据。注册账户支持退出后重新登录。为展示图片分享，上传图片在用户主动上传同意后通过随机 URL 可公开访问；请勿上传敏感图片。
 
@@ -86,4 +108,4 @@ Node 不会自动加载 `.env`。可复制 `.env.example` 为 `.env`，使用 `n
 
 九家外部供应商均使用明确标注的本地演示替代：OpenWeather 天气、Cloudinary 图片处理、Facebook 分享、Google Places 店铺、Stripe 支付、AfterShip 物流、Algolia 搜索、Twilio 通知、OpenAI 文案。应用不请求真实银行卡，不真实扣款、不发送短信、不发帖到外部平台，不向工厂发送订单。浏览器分享或复制链接由用户主动触发。
 
-三维服装使用程序生成网格和比例调整，不进行物理布料模拟或真实合体预测。店铺为虚构示例，地图仅为位置示意。报告中的生产性能、可用性、可持续性收益和安全合规认证均未在此演示中验证。未自动部署或发布。
+三维人物采用 MakeHuman CC0 的细致人体网格，服装使用程序网格和比例调整；不进行物理布料模拟或真实合体预测。店铺为虚构示例，地图仅为位置示意。报告中的生产性能、可用性、可持续性收益和安全合规认证均未在此演示中验证。未自动部署或发布。

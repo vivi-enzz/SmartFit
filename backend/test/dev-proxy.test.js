@@ -21,6 +21,7 @@ test('Vite proxy preserves browser origin for login and rejects genuinely foreig
   const vite = await createServer({
     ...viteConfig,
     configFile: false,
+    optimizeDeps: { noDiscovery: true, include: [] },
     appType: 'custom',
     server: { ...viteConfig.server, middlewareMode: true, proxy: { '/api': proxy } },
   });

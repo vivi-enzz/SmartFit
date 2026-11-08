@@ -19,6 +19,11 @@ test('production server serves compiled SPA, nested routes, assets and API on sa
     assert.equal(js.status, 200);
     assert.match(js.headers['content-type'], /javascript/);
     assert.equal((await request(app).get('/api/health')).body.mode, 'demo');
+    assert.match(
+      (await request(app).get('/editorial/look-1.webp')).headers['content-type'],
+      /image\/webp/
+    );
+    assert.equal((await request(app).get('/models/atelier-body.glb')).status, 200);
     assert.equal((await request(app).get('/api/not-found')).status, 404);
   } finally {
     app.locals.close();

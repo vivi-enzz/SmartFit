@@ -94,15 +94,15 @@ async function exportData() {
   <div v-if="!store.state.user" class="page auth-page">
     <aside class="auth-story">
       <div class="eyebrow">A SPACE FOR YOUR STYLE</div>
-      <h1>风格的起点，<br />是你自己。</h1>
-      <p>保存每一次灵感，让每一件衣服<br />都成为你的表达。</p>
+      <h1>{{ $t('风格的起点，') }}<br />{{ $t('是你自己。') }}</h1>
+      <p>{{ $t('保存每一次灵感，让每一件衣服') }}<br />{{ $t('都成为你的表达。') }}</p>
       <div class="auth-lines"><span></span><span></span><span></span></div>
       <small>SMARTFIT · MADE FOR YOU</small>
     </aside>
     <section class="auth-form">
       <div class="eyebrow">WELCOME TO SMARTFIT</div>
-      <h2>{{ mode === 'login' ? '很高兴遇见你。' : '开始你的定制之旅。' }}</h2>
-      <p>登录后保存设计、分享灵感与查看订单。</p>
+      <h2>{{ $t(mode === 'login' ? '很高兴遇见你。' : '开始你的定制之旅。') }}</h2>
+      <p>{{ $t('登录后保存设计、分享灵感与查看订单。') }}</p>
       <div class="tabs">
         <button
           :class="{ selected: mode === 'login' }"
@@ -111,7 +111,7 @@ async function exportData() {
             error = '';
           "
         >
-          登录</button
+          {{ $t('登录') }}</button
         ><button
           :class="{ selected: mode === 'register' }"
           @click="
@@ -119,19 +119,21 @@ async function exportData() {
             error = '';
           "
         >
-          注册账户
+          {{ $t('注册账户') }}
         </button>
       </div>
       <form @submit.prevent="submit(false)">
         <label v-if="mode === 'register'" class="field"
-          >你的名字<input
+          >{{ $t('你的名字')
+          }}<input
             v-model="form.name"
             required
             maxlength="40"
             autocomplete="name"
-            placeholder="希望我们如何称呼你" /></label
+            :placeholder="$t('希望我们如何称呼你')" /></label
         ><label class="field"
-          >邮箱<input
+          >{{ $t('邮箱')
+          }}<input
             v-model="form.email"
             type="email"
             required
@@ -139,27 +141,30 @@ async function exportData() {
             autocomplete="email"
             placeholder="you@example.com" /></label
         ><label class="field"
-          >密码<input
+          >{{ $t('密码')
+          }}<input
             v-model="form.password"
             type="password"
             :minlength="mode === 'register' ? 10 : 1"
             maxlength="72"
             required
             :autocomplete="mode === 'register' ? 'new-password' : 'current-password'"
-            placeholder="注册时至少 10 个字符"
+            :placeholder="$t('注册时至少 10 个字符')"
         /></label>
-        <p v-if="error" class="error-box" role="alert">{{ error }}</p>
+        <p v-if="error" class="error-box" role="alert">{{ $t(error) }}</p>
         <button class="primary full" :disabled="busy">
-          {{ busy ? '请稍候…' : mode === 'login' ? '登录 SmartFit' : '创建账户'
+          {{ $t(busy ? '请稍候…' : mode === 'login' ? '登录 SmartFit' : '创建账户')
           }}<Icon name="arrow" :size="17" />
         </button>
       </form>
-      <div class="or-divider">或先体验一下</div>
+      <div class="or-divider">{{ $t('或先体验一下') }}</div>
       <button class="secondary full" :disabled="busy" @click="submit(true)">
-        <Icon name="spark" :size="17" />一键体验完整演示
+        <Icon name="spark" :size="17" />{{ $t('一键体验完整演示') }}
       </button>
       <p class="small-note">
-        每次体验都会创建独立账户。无需填写真实个人信息。演示账户请在退出前导出需要的数据。
+        {{
+          $t('每次体验都会创建独立账户。无需填写真实个人信息。演示账户请在退出前导出需要的数据。')
+        }}
       </p>
     </section>
   </div>
@@ -167,53 +172,56 @@ async function exportData() {
     <div class="page-heading">
       <div>
         <div class="eyebrow">YOUR SMARTFIT SPACE</div>
-        <h1>你好，{{ store.state.user.name }}。</h1>
-        <p>{{ store.state.user.demo ? '这是你的独立演示空间。' : '欢迎回到你的风格空间。' }}</p>
+        <h1>{{ $t('你好，') }}{{ $t(store.state.user.name) }}。</h1>
+        <p>{{ $t(store.state.user.demo ? '这是你的独立演示空间。' : '欢迎回到你的风格空间。') }}</p>
       </div>
-      <button class="secondary" :disabled="busy" @click="logout">退出登录</button>
+      <button class="secondary" :disabled="busy" @click="logout">{{ $t('退出登录') }}</button>
     </div>
     <div class="account-grid">
       <section class="panel">
-        <h2>我的创作与订单</h2>
+        <h2>{{ $t('我的创作与订单') }}</h2>
         <RouterLink to="/designs" class="account-link"
-          ><Icon name="spark" />我的设计<Icon name="arrow" :size="17" /></RouterLink
+          ><Icon name="spark" />{{ $t('我的设计') }}<Icon name="arrow" :size="17" /></RouterLink
         ><RouterLink to="/orders" class="account-link"
-          ><Icon name="box" />我的订单<Icon name="arrow" :size="17" /></RouterLink
+          ><Icon name="box" />{{ $t('我的订单') }}<Icon name="arrow" :size="17" /></RouterLink
         ><RouterLink to="/studio" class="account-link"
-          ><Icon name="user" />编辑我的身形<Icon name="arrow" :size="17"
+          ><Icon name="user" />{{ $t('编辑我的身形') }}<Icon name="arrow" :size="17"
         /></RouterLink>
       </section>
       <section class="panel">
-        <h2>数据由你掌握</h2>
+        <h2>{{ $t('数据由你掌握') }}</h2>
         <p class="muted">
-          {{
-            hasMetrics ? '你已加密保存身体尺寸，可随时删除。' : '尚未保存身体尺寸。'
-          }}导出包含你的设计、订单及社区互动。
+          {{ $t(hasMetrics ? '你已加密保存身体尺寸，可随时删除。' : '尚未保存身体尺寸。')
+          }}{{ $t('导出包含你的设计、订单及社区互动。') }}
         </p>
         <div class="stack">
-          <button class="secondary" @click="exportData">导出我的数据</button
+          <button class="secondary" @click="exportData">{{ $t('导出我的数据') }}</button
           ><button v-if="hasMetrics" class="text-button danger" @click="confirmDelete = true">
-            删除身体尺寸
+            {{ $t('删除身体尺寸') }}
           </button>
         </div>
         <div v-if="confirmDelete" class="confirm-box">
-          <p>确认删除已保存的身体尺寸？此操作无法撤销。</p>
-          <button class="secondary small" @click="confirmDelete = false">保留</button>
-          <button class="primary small" :disabled="busy" @click="removeMetrics">确认删除</button>
+          <p>{{ $t('确认删除已保存的身体尺寸？此操作无法撤销。') }}</p>
+          <button class="secondary small" @click="confirmDelete = false">{{ $t('保留') }}</button>
+          <button class="primary small" :disabled="busy" @click="removeMetrics">
+            {{ $t('确认删除') }}
+          </button>
         </div>
       </section>
       <section class="panel notifications">
-        <h2>订单动态 <span class="pill">模拟通知</span></h2>
+        <h2>
+          {{ $t('订单动态') }}<span class="pill">{{ $t('模拟通知') }}</span>
+        </h2>
         <div v-for="n in notices" :key="n.id" class="notice-item">
           <Icon name="mail" />
           <div>
-            <RouterLink :to="'/orders/' + n.order_id">{{ n.text }}</RouterLink
-            ><small>{{ date(n.created) }}</small>
+            <RouterLink :to="'/orders/' + n.order_id">{{ $t(n.text) }}</RouterLink
+            ><small>{{ $t(date(n.created)) }}</small>
           </div>
         </div>
-        <p v-if="!notices.length" class="muted">下单后，制作和物流动态会出现在这里。</p>
+        <p v-if="!notices.length" class="muted">{{ $t('下单后，制作和物流动态会出现在这里。') }}</p>
       </section>
     </div>
-    <p v-if="error" class="error-box" role="alert">{{ error }}</p>
+    <p v-if="error" class="error-box" role="alert">{{ $t(error) }}</p>
   </div>
 </template>

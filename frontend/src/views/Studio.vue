@@ -183,31 +183,34 @@ onMounted(() => {
     <div class="page-heading">
       <div>
         <div class="eyebrow">THE CUSTOM STUDIO</div>
-        <h1>把灵感，穿在身上。</h1>
-        <p>每一个细节，都由你决定。</p>
+        <h1>{{ $t('把灵感，穿在身上。') }}</h1>
+        <p>{{ $t('每一个细节，都由你决定。') }}</p>
       </div>
       <RouterLink to="/designs" class="secondary"
-        >我的设计 <Icon name="arrow" :size="16"
+        >{{ $t('我的设计') }}<Icon name="arrow" :size="16"
       /></RouterLink>
     </div>
     <div class="studio-layout">
       <FittingRoom :config="config" :metrics="metrics" />
       <section class="studio-panel">
-        <div class="tabs" aria-label="定制面板">
+        <div class="tabs" :aria-label="$t('定制面板')">
           <button :class="{ selected: tab === 'design' }" @click="tab = 'design'">
-            01 服装设计</button
-          ><button :class="{ selected: tab === 'body' }" @click="tab = 'body'">02 我的身形</button>
+            {{ $t('01 服装设计') }}</button
+          ><button :class="{ selected: tab === 'body' }" @click="tab = 'body'">
+            {{ $t('02 我的身形') }}
+          </button>
         </div>
         <div v-show="tab === 'design'">
           <label class="field"
-            >设计名称<input v-model="name" maxlength="60" placeholder="为这件作品起个名字"
+            >{{ $t('设计名称')
+            }}<input v-model="name" maxlength="60" :placeholder="$t('为这件作品起个名字')"
           /></label>
           <div
             v-for="key in ['garmentType', 'silhouette', 'collar', 'sleeve', 'length']"
             :key="key"
             class="option-field"
           >
-            <span>{{ fieldLabels[key] }}</span>
+            <span>{{ $t(fieldLabels[key]) }}</span>
             <div class="option-buttons">
               <button
                 v-for="v in options[key]"
@@ -217,12 +220,14 @@ onMounted(() => {
                 :aria-pressed="config[key] === v"
                 @click="config[key] = v"
               >
-                {{ key === 'sleeve' && v === 'short' ? '短袖' : labels[v] }}
+                {{ $t(key === 'sleeve' && v === 'short' ? '短袖' : labels[v]) }}
               </button>
             </div>
           </div>
           <div class="option-field">
-            <span>面料 <small>触感与纹理的选择</small></span>
+            <span
+              >{{ $t('面料') }}<small>{{ $t('触感与纹理的选择') }}</small></span
+            >
             <div class="fabric-options">
               <button
                 v-for="f in fabrics"
@@ -232,15 +237,15 @@ onMounted(() => {
               >
                 <span class="fabric-swatch" :style="{ backgroundColor: f.tone }"></span
                 ><span
-                  >{{ f.name
-                  }}<small>{{ f.price ? '+ ' + money(f.price) : '基础面料' }}</small></span
+                  >{{ $t(f.name)
+                  }}<small>{{ $t(f.price ? '+ ' + money(f.price) : '基础面料') }}</small></span
                 ><Icon v-if="config.fabricId === f.id" name="check" :size="15" />
               </button>
             </div>
           </div>
           <div class="option-field">
             <span
-              >颜色 <small>{{ config.colorHex }}</small></span
+              >{{ $t('颜色') }}<small>{{ $t(config.colorHex) }}</small></span
             >
             <div class="color-options">
               <button
@@ -248,7 +253,7 @@ onMounted(() => {
                 :key="c"
                 :style="{ background: c }"
                 :class="{ selected: config.colorHex.toUpperCase() === c }"
-                :aria-label="'选择颜色 ' + c"
+                :aria-label="$t('选择颜色 ' + c)"
                 :aria-pressed="config.colorHex.toUpperCase() === c"
                 @click="config.colorHex = c"
               >
@@ -260,15 +265,16 @@ onMounted(() => {
                     color: ['#343F3A', '#73566D', '#B56851'].includes(c) ? 'white' : '#263d30',
                   }"
                 /></button
-              ><label class="custom-color" title="自定义颜色"
-                ><input v-model="config.colorHex" type="color" aria-label="自定义颜色" /><Icon
-                  name="plus"
-                  :size="18"
+              ><label class="custom-color" :title="$t('自定义颜色')"
+                ><input
+                  v-model="config.colorHex"
+                  type="color"
+                  :aria-label="$t('自定义颜色')" /><Icon name="plus" :size="18"
               /></label>
             </div>
           </div>
           <div class="option-field">
-            <span>专属细节</span>
+            <span>{{ $t('专属细节') }}</span>
             <div class="option-buttons">
               <button
                 v-for="v in options.embroidery"
@@ -276,16 +282,18 @@ onMounted(() => {
                 :class="{ selected: config.embroidery === v }"
                 @click="config.embroidery = v"
               >
-                {{ labels[v] }}
+                {{ $t(labels[v]) }}
               </button>
             </div>
           </div>
         </div>
         <div v-show="tab === 'body'" class="body-panel">
-          <h3>每一寸，都有自己的答案。</h3>
-          <p>输入尺寸可调整预览比例。身体数据只有在你同意并点击保存后才会传到服务器。</p>
+          <h3>{{ $t('每一寸，都有自己的答案。') }}</h3>
+          <p>
+            {{ $t('输入尺寸可调整预览比例。身体数据只有在你同意并点击保存后才会传到服务器。') }}
+          </p>
           <label v-for="(range, k) in metricRanges" :key="k" class="field"
-            >{{ metricLabels[k] }} <small>{{ range[0] }}–{{ range[1] }} cm</small>
+            >{{ $t(metricLabels[k]) }} <small>{{ $t(range[0]) }}–{{ $t(range[1]) }} cm</small>
             <div class="metric-input">
               <input
                 v-model.number="metrics[k]"
@@ -296,32 +304,32 @@ onMounted(() => {
               /><span>cm</span>
             </div></label
           ><label class="checkbox"
-            ><input
-              v-model="consent"
-              type="checkbox"
-            />我同意加密保存身体尺寸，用于我的定制体验。</label
+            ><input v-model="consent" type="checkbox" />{{
+              $t('我同意加密保存身体尺寸，用于我的定制体验。')
+            }}</label
           ><button
             class="secondary full"
             :disabled="busy || !consent || !validMetrics(metrics)"
             @click="saveMetrics"
           >
-            <Icon name="lock" :size="16" />加密保存尺寸
+            <Icon name="lock" :size="16" />{{ $t('加密保存尺寸') }}
           </button>
           <p class="small-note">
-            可在账户页删除或导出数据。当前模型用于造型参考，不提供真实合体预测。
+            {{ $t('可在账户页删除或导出数据。当前模型用于造型参考，不提供真实合体预测。') }}
           </p>
         </div>
-        <div v-if="invalid || error" class="error-box" role="alert">{{ error || invalid }}</div>
+        <div v-if="invalid || error" class="error-box" role="alert">{{ $t(error || invalid) }}</div>
         <div class="studio-summary">
           <div>
-            <small>专属定制报价</small><strong>{{ money(price) }}</strong
-            ><span>含面料与所选细节 · 免运费（演示）</span>
+            <small>{{ $t('专属定制报价') }}</small
+            ><strong>{{ $t(money(price)) }}</strong
+            ><span>{{ $t('含面料与所选细节 · 免运费（演示）') }}</span>
           </div>
           <div class="summary-buttons">
             <button class="secondary" :disabled="busy || !!invalid" @click="save(false)">
-              保存设计</button
+              {{ $t('保存设计') }}</button
             ><button class="primary" :disabled="busy || !!invalid" @click="save(true)">
-              {{ busy ? '正在保存…' : '定制这一件' }}<Icon name="arrow" :size="17" />
+              {{ $t(busy ? '正在保存…' : '定制这一件') }}<Icon name="arrow" :size="17" />
             </button>
           </div>
         </div>

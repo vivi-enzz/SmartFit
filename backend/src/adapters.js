@@ -45,10 +45,22 @@ export function recommendations(city = 'Hong Kong', failure = false) {
   if (!failure) cache.set(name, { data, expires: Date.now() + 1800000 });
   return data;
 }
-export function caption(config, failure = false) {
-  const f = fabrics.find((x) => x.id === config?.fabricId)?.name || '舒适面料';
+export function caption(config, failure = false, language = 'zh-Hant') {
+  const names =
+    language === 'en'
+      ? {
+          linen: 'natural linen',
+          cotton: 'organic cotton',
+          silk: 'mulberry silk',
+          wool: 'fine wool',
+        }
+      : { linen: '天然亞麻', cotton: '有機棉', silk: '桑蠶絲', wool: '精紡羊毛' };
+  const f = names[config?.fabricId] || (language === 'en' ? 'soft fabric' : '舒適面料');
   return {
-    caption: `今天的灵感，由自己定义。用${f}，把喜欢的颜色穿成日常。每一寸合身，都是专属于我的风格。 #SmartFit #今日穿搭`,
+    caption:
+      language === 'en'
+        ? `My style, my rules. Turning ${f} and a favourite colour into an everyday look that feels like me. #SmartFit #OOTD`
+        : `今天的靈感，由自己定義。用${f}，把喜歡的顏色穿成日常。每一寸合身，都是專屬於我的風格。 #SmartFit #今日穿搭`,
     source: failure ? 'fallback' : 'demo',
     provider: '本地文案模板',
   };

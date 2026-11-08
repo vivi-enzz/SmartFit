@@ -1,20 +1,25 @@
 import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'vite';
-const server = await createServer({ server: { middlewareMode: true }, appType: 'custom' });
+const server = await createServer({
+  server: { middlewareMode: true },
+  appType: 'custom',
+  optimizeDeps: { noDiscovery: true, include: [] },
+});
 after(() => server.close());
 // SSR compiles the same Vue templates as the production client; no browser or network server is launched.
 const { renderPage } = await server.ssrLoadModule('/test/render-fixture.js');
 for (const [page, needle] of [
-  ['Home', '让衣服'],
-  ['Studio', '服装设计'],
-  ['Account', '一键体验'],
-  ['Community', '全部灵感'],
-  ['Designs', '我的设计'],
-  ['Checkout', '离专属作品'],
-  ['Orders', '我的订单'],
-  ['Partners', '服务'],
+  ['Home', '下一個版本'],
+  ['Studio', '服裝設計'],
+  ['Account', '一鍵體驗'],
+  ['Community', '全部靈感'],
+  ['Designs', '我的設計'],
+  ['Checkout', '離專屬作品'],
+  ['Orders', '我的訂單'],
+  ['Partners', '服務'],
   ['NotFound', '404'],
+  ['Credits', '清晰來源'],
 ]) {
   test(`Vue page ${page} compiles and renders its main content`, async () => {
     const html = await renderPage(page);
@@ -22,3 +27,11 @@ for (const [page, needle] of [
     assert.ok(!html.includes('[object Object]'));
   });
 }
+
+test('English renders the commercial home and account forms', async () => {
+  const home = await renderPage('Home', 'en');
+  assert.ok(home.includes('next self.'));
+  const account = await renderPage('Account', 'en');
+  assert.ok(account.includes('Try the Full Demo'));
+  assert.ok(account.includes('Email'));
+});
