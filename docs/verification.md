@@ -49,3 +49,11 @@ Vite 的字符串形式 proxy 配置会默认开启 changeOrigin，造成 Host �
 默认 `npm run dev` 现在通过同一服务处理 Vue 与 `/api`。此项避免旧版依赖代理转发 Host 的路径；不等于已确认用户旧版本持续报错的本机原因。若仍报错，请核对 `/api/health` 的版本应为 `2.0.0`，并确保旧服务已停止、已更新整套源码。
 
 目前无 `cua_repl.js` 等 managed 浏览器控制工具。未启动替代浏览器或预览通道，不把 SSR/HTTP 检查称为浏览器端到端测试。真实设备布局、点击流程与 WebGL 外观仍需在本机核验。
+
+## Safari 本地 HTTP 白屏修复（2.0.1）
+
+已通过真实开发中间件读取响应头，确认 2.0 的 HTML 响应包含 Helmet 默认的 `upgrade-insecure-requests`。已安装 Helmet 的 README 明确说明 Safari 会据此将 `http://localhost` 的资源请求改为 HTTPS；本地服务没有 TLS 时会导致脚本加载失败。语言模块的 JSON 导入也已检查：Vite 已将其转换为普通 JS 模块，不是本次确认的问题。
+
+2.0.1 在本地 HTTP 禁用该指令，默认开发入口强制使用本地 HTTP 策略；`NODE_ENV=production` 的 HTTPS 服务仍保留升级指令。其他 CSP、来源校验和身份校验没有关闭。
+
+验证：45 项测试通过；新增本地 HTTP/正式 HTTPS 响应头回归；开发页面和入口脚本返回成功，原登录与跨站拒绝检查仍通过。生产构建与资源冒烟检查通过。当前无 Safari/浏览器控制工具，未在用户的 Safari 上现场复测。

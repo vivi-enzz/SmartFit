@@ -12,6 +12,10 @@ test('default development serves live Vue and authenticated API on a single orig
     const page = await request(dev.app).get('/account');
     assert.equal(page.status, 200);
     assert.match(page.text, /\/@vite\/client/);
+    assert.doesNotMatch(page.headers['content-security-policy'], /upgrade-insecure-requests/);
+    const module = await request(dev.app).get('/src/main.js');
+    assert.equal(module.status, 200);
+    assert.match(module.headers['content-type'], /javascript/);
     const response = await request(dev.app)
       .post('/api/auth/demo')
       .set('Host', 'localhost:5173')

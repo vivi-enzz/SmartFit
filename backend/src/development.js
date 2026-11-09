@@ -6,7 +6,7 @@ import { createApp } from './app.js';
 import config from '../../vite.config.js';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 export async function createDevelopmentApp({ httpServer, hmr = true, ...options } = {}) {
-  const app = createApp({ ...options, serveFrontend: false });
+  const app = createApp({ ...options, serveFrontend: false, httpsOnly: false });
   const vite = await createServer({
     ...config,
     ...(!hmr ? { optimizeDeps: { noDiscovery: true, include: [] } } : {}),

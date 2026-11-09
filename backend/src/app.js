@@ -33,6 +33,7 @@ const publicUser = (u) => ({ id: u.id, name: u.name, email: u.email, demo: !!u.d
 export function createApp({
   dataDir = process.env.DATA_DIR || path.join(root, 'backend/data'),
   serveFrontend = true,
+  httpsOnly = process.env.NODE_ENV === 'production',
 } = {}) {
   const app = express(),
     { db, key } = openStore(dataDir);
@@ -48,6 +49,9 @@ export function createApp({
           styleSrc: ["'self'", "'unsafe-inline'"],
           imgSrc: ["'self'", 'data:', 'blob:'],
           connectSrc: ["'self'"],
+          // Safari upgrades http://localhost resources when this default is enabled.
+          // Local HTTP must remain HTTP; deployed HTTPS retains the upgrade policy.
+          upgradeInsecureRequests: httpsOnly ? [] : null,
           workerSrc: ["'self'", 'blob:'],
         },
       },
@@ -181,7 +185,7 @@ export function createApp({
     );
   };
   app.get('/api/health', (req, res) =>
-    res.json({ ok: true, mode: 'demo', storage: 'sqlite', version: '2.0.0' })
+    res.json({ ok: true, mode: 'demo', storage: 'sqlite', version: '2.0.1' })
   );
   app.get('/api/catalog', (req, res) =>
     res.json({ fabrics, options, labels, defaults, metricRanges, statusLabels, providers })
