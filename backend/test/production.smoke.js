@@ -25,10 +25,18 @@ test('production server serves compiled SPA, nested routes, assets and API on sa
     );
     assert.equal((await request(app).get('/models/atelier-body.glb')).status, 200);
     assert.match(
+      (await request(app).get('/shopping/warm-interior.webp')).headers['content-type'],
+      /image\/webp/
+    );
+    assert.match(
+      (await request(app).get('/shopping/look-3.webp')).headers['content-type'],
+      /image\/webp/
+    );
+    assert.match(
       (await request(app).get('/editorial/idols/idol-jennie.webp')).headers['content-type'],
       /image\/webp/
     );
-    assert.equal((await request(app).get('/api/health')).body.version, '2.1.0');
+    assert.equal((await request(app).get('/api/health')).body.version, '2.2.0');
     assert.equal((await request(app).get('/api/not-found')).status, 404);
   } finally {
     app.locals.close();

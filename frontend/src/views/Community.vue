@@ -24,11 +24,15 @@ const store = useStore(),
   designs = ref([]),
   uploading = ref(false),
   aiBusy = ref(false),
-  savedOnly = ref(false);
+  savedOnly = ref(route.query.saved === '1'),
+  contentType = ref('all');
 const visiblePosts = computed(() =>
-  savedOnly.value
-    ? posts.value.filter((p) => (store.state.savedLooks || []).includes(p.id))
-    : posts.value
+  posts.value.filter(
+    (p) =>
+      (!savedOnly.value || (store.state.savedLooks || []).includes(p.id)) &&
+      (contentType.value === 'all' ||
+        (contentType.value === 'users' ? !p.editorial : p.kind === contentType.value))
+  )
 );
 const draft = reactive({ designId: '', caption: '', category: 'daily', imageUrl: '' });
 const draftConfig = ref({ ...defaults });
@@ -65,6 +69,12 @@ onMounted(async () => {
   if (route.query.compose) openCompose();
 });
 watch(category, load);
+watch(
+  () => route.query.saved,
+  (value) => {
+    savedOnly.value = value === '1';
+  }
+);
 watch(
   () => route.query.category,
   (v) => {
@@ -168,7 +178,26 @@ function close() {
       <p>{{ $t('真實街頭，真實風格。今日靈感已上線。') }}</p>
       <RouterLink to="/studio">{{ $t('從靈感開始訂製 ↗') }}</RouterLink>
     </div>
-    <IdolSpotlight v-if="!savedOnly && !q" />
+    <div class="community-discovery-row">
+      <button
+        v-for="item in [
+          { id: 'all', title: '為你推薦', image: '/shopping/look-1.webp' },
+          { id: 'daily', title: '日常穿搭', image: '/shopping/look-4.webp' },
+          { id: 'idol', title: 'IDOL 靈感', image: '/editorial/idols/idol-jennie.webp' },
+          { id: 'users', title: '社群分享', image: '/shopping/look-5.webp' },
+        ]"
+        :key="item.id"
+        :class="{ selected: contentType === item.id }"
+        @click="contentType = item.id"
+        :aria-pressed="contentType === item.id"
+      >
+        <span><img :src="item.image" alt="" loading="lazy" /></span><b>{{ $t(item.title) }}</b>
+      </button>
+      <RouterLink to="/studio?product=city-hoodie" class="community-studio-drop"
+        ><span>THE STUDIO DROP / 01</span><b>{{ $t('你的下一件日常。') }}</b
+        ><small>{{ $t('連帽衛衣，自由配色。') }} ↗</small></RouterLink
+      >
+    </div>
     <div class="community-topic-strip">
       <RouterLink :to="{ path: '/community', query: { q: 'Karina' } }"># K-STYLE LAYERS</RouterLink
       ><RouterLink :to="{ path: '/community', query: { q: 'Jennie' } }"># IDOL STYLE</RouterLink
@@ -213,6 +242,8 @@ function close() {
         @click="
           q = '';
           category = 'all';
+          contentType = 'all';
+          savedOnly = false;
           load();
         "
       >
@@ -221,7 +252,10 @@ function close() {
     </div>
     <div v-else class="post-grid">
       <PostCard v-for="p in visiblePosts" :key="p.id" :post="p" @like="like" />
-      <article v-if="!savedOnly && !q && category === 'all'" class="community-publish-card">
+      <article
+        v-if="!savedOnly && !q && category === 'all' && contentType === 'all'"
+        class="community-publish-card"
+      >
         <div class="publish-grid-mark"><Icon name="camera" :size="30" /></div>
         <span>YOUR STYLE GOES HERE</span>
         <h3>{{ $t('下一份靈感，來自你。') }}</h3>
@@ -231,6 +265,13 @@ function close() {
         </button>
       </article>
     </div>
+    <details v-if="!savedOnly && !q" class="community-idol-archive">
+      <summary>
+        <span>IDOL STYLE ARCHIVE</span><b>{{ $t('明星穿搭與來源選集') }}</b
+        ><Icon name="plus" :size="18" />
+      </summary>
+      <IdolSpotlight />
+    </details>
     <Teleport to="body"
       ><div v-if="compose" class="modal-backdrop" @click.self="close" @keydown.esc="close">
         <section

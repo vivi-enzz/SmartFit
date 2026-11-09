@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive, computed, onMounted, watch } from 'vue';
+import { ref, reactive, computed, onMounted, watch, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import { api, money } from '../api';
@@ -17,10 +17,26 @@ import {
 } from '../../../shared/catalog';
 import FittingRoom from '../components/FittingRoom.vue';
 import Icon from '../components/Icon.vue';
+import { productConfig, styleProducts } from '../../../shared/shopping';
+import { createDesignHistory } from '../designHistory';
 import { styleTemplates } from '../../../shared/styleTemplates';
 const store = useStore(),
   route = useRoute(),
   router = useRouter();
+const mode = ref('tryon');
+const history = createDesignHistory({});
+const historyRevision = ref(0);
+let initializing = true,
+  restoring = false,
+  generation = 0;
+const canUndo = computed(() => {
+  historyRevision.value;
+  return !initializing && history.canUndo;
+});
+const canRedo = computed(() => {
+  historyRevision.value;
+  return !initializing && history.canRedo;
+});
 const studioDefaults = { ...styleTemplates[0].config };
 const config = reactive({ ...studioDefaults }),
   metrics = reactive({ height: 168, bust: 88, waist: 68, hip: 94 }),
@@ -30,6 +46,27 @@ const config = reactive({ ...studioDefaults }),
   busy = ref(false),
   error = ref(''),
   savedId = ref('');
+watch(
+  config,
+  () => {
+    if (!initializing && !restoring) {
+      history.record({ ...config });
+      historyRevision.value++;
+    }
+  },
+  { deep: true, flush: 'post' }
+);
+async function restore(direction) {
+  if (initializing || restoring) return;
+  restoring = true;
+  Object.assign(config, history[direction]());
+  await nextTick();
+  restoring = false;
+  historyRevision.value++;
+}
+function selectPreset(preset) {
+  Object.assign(config, preset.config);
+}
 const colors = [
   '#8C9B82',
   '#D8B4A6',
@@ -56,7 +93,15 @@ function allowed(k, v) {
 watch(
   () => config.garmentType,
   (v) => {
-    if (v === 'top') {
+    if (restoring) return;
+    if (v === 'hoodie') {
+      Object.assign(config, {
+        length: 'short',
+        sleeve: 'long',
+        collar: 'round',
+        construction: 'classic',
+      });
+    } else if (v === 'top') {
       config.length = 'short';
       if (config.construction === 'tiered') config.construction = 'classic';
     } else if (config.length === 'short') config.length = 'midi';
@@ -69,9 +114,22 @@ watch(
   }
 );
 async function init() {
+  if (!route.path.startsWith('/studio')) return;
+  const current = ++generation;
+  initializing = true;
+  history.reset({ ...config });
+  historyRevision.value++;
   error.value = '';
   savedId.value = '';
   Object.assign(config, studioDefaults);
+  if (route.query.product) {
+    const selected = productConfig(route.query.product, route.query.color);
+    if (selected) {
+      Object.assign(config, selected);
+      const p = styleProducts.find((p) => p.id === route.query.product);
+      name.value = translate(p.name);
+    }
+  }
   if (route.query.template) {
     const preset = styleTemplates.find((t) => t.id === route.query.template);
     if (preset) Object.assign(config, preset.config);
@@ -91,33 +149,62 @@ async function init() {
   if (route.query.look) {
     try {
       const p = await api('/posts/' + route.query.look);
+      if (current !== generation) return;
       Object.assign(config, p.config);
       name.value = '来自社区的灵感';
     } catch (e) {
-      error.value = e.message;
+      if (current === generation) error.value = e.message;
     }
   }
   if (route.params.id) {
     try {
       const d = await api('/designs/' + route.params.id);
+      if (current !== generation) return;
       Object.assign(config, d.config);
       name.value = d.name;
       savedId.value = d.id;
     } catch (e) {
-      error.value = e.message;
+      if (current === generation) error.value = e.message;
     }
   }
   if (store.state.user) {
     try {
       const m = await api('/metrics');
+      if (current !== generation) return;
       if (m.metrics) {
         Object.assign(metrics, m.metrics);
         consent.value = true;
       }
     } catch (e) {
-      error.value = e.message;
+      if (current === generation) error.value = e.message;
     }
   }
+  await nextTick();
+  if (current !== generation) return;
+  // Restore only an explicit login handoff or a plain studio entry. Fresh product links win over stale drafts.
+  const resumeDraft =
+    route.query.resume === '1' ||
+    (!route.params.id && !route.query.look && !route.query.product && !route.query.template);
+  if (resumeDraft) {
+    try {
+      const raw = sessionStorage.getItem('smartfit-draft');
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft.config && typeof draft.config === 'object') Object.assign(config, draft.config);
+        if (draft.metrics && typeof draft.metrics === 'object')
+          Object.assign(metrics, draft.metrics);
+        if (typeof draft.name === 'string') name.value = draft.name;
+        sessionStorage.removeItem('smartfit-draft');
+      }
+    } catch {
+      /* Unavailable browser storage does not block the editor. */
+    }
+  }
+  await nextTick();
+  if (current !== generation) return;
+  history.reset({ ...config });
+  initializing = false;
+  historyRevision.value++;
 }
 onMounted(init);
 watch(() => route.fullPath, init);
@@ -128,7 +215,12 @@ async function save(checkout = false) {
       'smartfit-draft',
       JSON.stringify({ config: { ...config }, metrics: { ...metrics }, name: name.value })
     );
-    return router.push({ path: '/account', query: { next: route.fullPath } });
+    return router.push({
+      path: '/account',
+      query: {
+        next: router.resolve({ path: route.path, query: { ...route.query, resume: '1' } }).fullPath,
+      },
+    });
   }
   if (invalid.value) {
     error.value = invalid.value;
@@ -174,21 +266,9 @@ async function saveMetrics() {
     busy.value = false;
   }
 }
-onMounted(() => {
-  const raw = sessionStorage.getItem('smartfit-draft');
-  if (raw && !route.params.id && !route.query.look) {
-    try {
-      const d = JSON.parse(raw);
-      Object.assign(config, d.config);
-      Object.assign(metrics, d.metrics);
-      name.value = d.name;
-    } catch {}
-    sessionStorage.removeItem('smartfit-draft');
-  }
-});
 </script>
 <template>
-  <div class="page studio-page">
+  <div class="page studio-page shopping-studio" :class="{ 'garment-mode': mode === 'garment' }">
     <div class="page-heading">
       <div>
         <div class="eyebrow">THE CUSTOM STUDIO</div>
@@ -199,8 +279,35 @@ onMounted(() => {
         >{{ $t('我的设计') }}<Icon name="arrow" :size="16"
       /></RouterLink>
     </div>
+    <div class="studio-mode-bar">
+      <div class="studio-mode-tabs" role="group" :aria-label="$t('工作台視圖')">
+        <button :class="{ selected: mode === 'tryon' }" @click="mode = 'tryon'">
+          <Icon name="user" :size="15" />{{ $t('空間試衣間') }}</button
+        ><button :class="{ selected: mode === 'garment' }" @click="mode = 'garment'">
+          <Icon name="spark" :size="15" />{{ $t('服裝設計台') }}
+        </button>
+      </div>
+      <div class="history-controls">
+        <span>DESIGN YOUR EVERYDAY</span
+        ><button
+          class="icon-button"
+          :disabled="!canUndo"
+          :aria-label="$t('撤銷')"
+          @click="restore('undo')"
+        >
+          <Icon name="undo" :size="18" /></button
+        ><button
+          class="icon-button"
+          :disabled="!canRedo"
+          :aria-label="$t('重做')"
+          @click="restore('redo')"
+        >
+          <Icon name="redo" :size="18" />
+        </button>
+      </div>
+    </div>
     <div class="studio-layout">
-      <FittingRoom :config="config" :metrics="metrics" />
+      <FittingRoom :config="config" :metrics="metrics" :mode="mode" />
       <section class="studio-panel">
         <div class="tabs" :aria-label="$t('定制面板')">
           <button :class="{ selected: tab === 'design' }" @click="tab = 'design'">
@@ -219,7 +326,7 @@ onMounted(() => {
               <button
                 v-for="preset in styleTemplates"
                 :key="preset.id"
-                @click="Object.assign(config, preset.config)"
+                @click="selectPreset(preset)"
               >
                 <span class="preset-fabric" :style="{ background: preset.config.colorHex }"></span
                 ><b>{{ $t(preset.title) }}</b
@@ -306,7 +413,7 @@ onMounted(() => {
               </button>
             </div>
           </div>
-          <div class="option-field">
+          <div class="option-field material-color-editor">
             <span
               >{{ $t('颜色') }}<small>{{ $t(config.colorHex) }}</small></span
             >
@@ -336,6 +443,27 @@ onMounted(() => {
               /></label>
             </div>
           </div>
+          <div class="hex-color-control">
+            <label
+              >{{ $t('自定义颜色')
+              }}<input
+                type="color"
+                v-model="config.colorHex"
+                :aria-label="$t('自定义颜色')" /></label
+            ><span>HEX</span
+            ><input
+              :value="config.colorHex.toUpperCase()"
+              maxlength="7"
+              pattern="#[0-9a-fA-F]{6}"
+              :aria-label="$t('十六進位色值')"
+              @change="
+                (e) => {
+                  if (/^#[0-9a-f]{6}$/i.test(e.target.value)) config.colorHex = e.target.value;
+                  else e.target.value = config.colorHex;
+                }
+              "
+            />
+          </div>
           <div class="option-field">
             <span>{{ $t('专属细节') }}</span>
             <div class="option-buttons">
@@ -351,6 +479,11 @@ onMounted(() => {
           </div>
         </div>
         <div v-show="tab === 'body'" class="body-panel">
+          <div class="size-guide-card">
+            <span>MEASUREMENTS / CM</span>
+            <h3>{{ $t('找到你的比例') }}</h3>
+            <p>{{ $t('調整尺寸觀察輪廓，再儲存自己的身形。') }}</p>
+          </div>
           <h3>{{ $t('每一寸，都有自己的答案。') }}</h3>
           <p>
             {{ $t('输入尺寸可调整预览比例。身体数据只有在你同意并点击保存后才会传到服务器。') }}

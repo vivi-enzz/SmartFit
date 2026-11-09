@@ -75,3 +75,37 @@ test('opening a legacy saved draft adds neutral defaults without changing its pr
     rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('hoodie order snapshots retain garment type and reject unsupported hoodie combinations', async () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'sf-hoodie-')),
+    app = createApp({ dataDir: dir });
+  try {
+    const a = request.agent(app);
+    await a.post('/api/auth/demo');
+    const config = {
+      ...defaults,
+      garmentType: 'hoodie',
+      fabricId: 'cotton',
+      length: 'short',
+      sleeve: 'long',
+    };
+    const d = await a.post('/api/designs').send({ name: 'Everyday hoodie', config, price: 1 });
+    assert.equal(d.status, 201);
+    assert.equal(d.body.price, 69800);
+    const invalid = await a
+      .post('/api/designs')
+      .send({ name: 'Bad hoodie', config: { ...config, collar: 'square' } });
+    assert.equal(invalid.status, 400);
+    const o = await a.post('/api/orders').send({
+      designId: d.body.id,
+      idempotencyKey: 'hoodie-1',
+      address: { name: 'Demo', phone: '12345678', line: 'Demo address Hong Kong' },
+    });
+    assert.equal(o.status, 201);
+    assert.equal(o.body.snapshot.config.garmentType, 'hoodie');
+    assert.equal(o.body.amount, 69800);
+  } finally {
+    app.locals.close();
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

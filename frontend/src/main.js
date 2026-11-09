@@ -5,6 +5,7 @@ import { i18n, setLocale, locale } from './i18n';
 import store from './store';
 import './style.css';
 import './refinements.css';
+import './shopping.css';
 const router = createRouter({
   history: createWebHistory(),
   scrollBehavior(to, from, saved) {

@@ -1,3 +1,4 @@
+import { dailyEditorial } from './shopping.js';
 import { defaults } from './catalog.js';
 import { idolEditorial } from './idolEditorial.js';
 const items = [
@@ -126,5 +127,5 @@ const baseEditorial = items.map(
     editorial: true,
   })
 );
-export const editorial = [...idolEditorial, ...baseEditorial];
+export const editorial = [...dailyEditorial, ...idolEditorial, ...baseEditorial];
 export const editorialById = Object.fromEntries(editorial.map((p) => [p.id, p]));

@@ -33,7 +33,7 @@ export const fabrics = [
   },
 ];
 export const options = {
-  garmentType: ['dress', 'top'],
+  garmentType: ['dress', 'top', 'hoodie'],
   silhouette: ['A-line', 'straight', 'fitted'],
   collar: ['round', 'v-neck', 'square'],
   sleeve: ['sleeveless', 'short', 'long'],
@@ -45,6 +45,7 @@ export const options = {
 export const labels = {
   dress: '连衣裙',
   top: '上装',
+  hoodie: '連帽衛衣',
   'A-line': 'A 字廓形',
   straight: '直筒',
   fitted: '修身',
@@ -108,6 +109,14 @@ export function validateConfig(c) {
   if (!fabrics.some((f) => f.id === c.fabricId)) return '请选择有效面料';
   if (!/^#[0-9a-f]{6}$/i.test(c.colorHex || '')) return '颜色应为六位十六进制色值';
   if (!/^#[0-9a-f]{6}$/i.test(c.accentColor || '')) return '請選擇有效的外搭顏色';
+  if (
+    c.garmentType === 'hoodie' &&
+    (c.length !== 'short' ||
+      c.sleeve !== 'long' ||
+      c.collar !== 'round' ||
+      c.construction !== 'classic')
+  )
+    return '連帽衛衣使用短衣長、長袖、圓領與經典剪裁';
   if (c.garmentType === 'top' && c.construction === 'tiered') return '分層裙襬僅適用於連衣裙';
   if (c.garmentType === 'top' && c.length !== 'short') return '上装仅支持短款衣长';
   if (c.fabricId === 'wool' && c.sleeve === 'sleeveless') return '羊毛面料暂不支持无袖款式';
@@ -115,7 +124,7 @@ export function validateConfig(c) {
 }
 export function estimatePrice(c) {
   return (
-    (c.garmentType === 'top' ? 49800 : 79800) +
+    (c.garmentType === 'top' ? 49800 : c.garmentType === 'hoodie' ? 69800 : 79800) +
     (fabrics.find((f) => f.id === c.fabricId)?.price || 0) +
     (c.embroidery && c.embroidery !== 'none' ? 8000 : 0) +
     (c.length === 'maxi' ? 6000 : 0) +

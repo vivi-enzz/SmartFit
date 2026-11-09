@@ -5,7 +5,11 @@ import Icon from './Icon.vue';
 import { createMannequin } from '../atelier/mannequin';
 import { createGarments } from '../atelier/garments';
 import { bodyScale } from '../model';
-const props = defineProps({ config: Object, metrics: Object });
+const props = defineProps({
+  config: Object,
+  metrics: Object,
+  mode: { type: String, default: 'tryon' },
+});
 const host = ref(null),
   fallback = ref(false),
   loading = ref(true),
@@ -40,7 +44,7 @@ function rebuild() {
   const yaw = model?.rotation.y ?? (angle.value * Math.PI) / 180;
   release(model);
   model = new T.Group();
-  model.add(createMannequin(T, props.metrics));
+  if (props.mode === 'tryon') model.add(createMannequin(T, props.metrics));
   model.add(createGarments(T, props.config, props.metrics, textiles));
   model.rotation.y = yaw;
   scene.add(model);
@@ -54,6 +58,16 @@ function cameraView() {
     camera.position.set(0.1, 1.33 * h, 1.2);
     controls.target.set(0, 1.29 * h, 0.05);
     controls.minDistance = 0.65;
+  } else if (viewMode.value === 'upper' || props.mode === 'garment') {
+    const center =
+      props.config?.garmentType === 'dress' && viewMode.value !== 'upper' ? 1.05 : 1.47;
+    camera.position.set(
+      0,
+      center * h,
+      props.config?.garmentType === 'dress' && viewMode.value !== 'upper' ? 3.9 : 2.55
+    );
+    controls.target.set(0, center * h, 0.025);
+    controls.minDistance = 1.2;
   } else {
     camera.position.set(0, 1.25, 4.85);
     controls.target.set(0, 1.1, 0.025);
@@ -67,9 +81,10 @@ onMounted(async () => {
     const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
     if (!active) return;
     scene = new T.Scene();
-    scene.background = new T.Color('#f2f1ef');
+    scene.background = null;
     camera = new T.PerspectiveCamera(29, 1, 0.1, 50);
-    renderer = new T.WebGLRenderer({ antialias: true });
+    renderer = new T.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setClearColor(0x000000, 0);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = T.PCFSoftShadowMap;
@@ -117,6 +132,8 @@ onMounted(async () => {
       new T.CircleGeometry(3, 80),
       new T.MeshStandardMaterial({ color: '#eeedea', roughness: 0.95 })
     );
+    floor.name = 'stage-floor';
+    floor.visible = props.mode === 'tryon';
     floor.rotation.x = -Math.PI / 2;
     floor.position.y = -0.035;
     floor.receiveShadow = true;
@@ -125,6 +142,8 @@ onMounted(async () => {
       new T.CylinderGeometry(0.51, 0.54, 0.035, 80),
       new T.MeshStandardMaterial({ color: '#e4e1da', roughness: 0.7 })
     );
+    plinth.name = 'stage-plinth';
+    plinth.visible = props.mode === 'tryon';
     plinth.position.y = -0.018;
     plinth.receiveShadow = true;
     scene.add(plinth);
@@ -159,9 +178,22 @@ watch(angle, (v) => {
 });
 watch(viewMode, cameraView);
 watch(
+  () => [props.mode, props.config?.garmentType],
+  () => {
+    rebuild();
+    cameraView();
+    if (scene) {
+      for (const name of ['stage-floor', 'stage-plinth']) {
+        const o = scene.getObjectByName(name);
+        if (o) o.visible = props.mode === 'tryon';
+      }
+    }
+  }
+);
+watch(
   () => props.metrics,
   () => {
-    if (viewMode.value === 'fabric') cameraView();
+    if (viewMode.value !== 'full' || props.mode === 'garment') cameraView();
   },
   { deep: true }
 );
@@ -181,10 +213,14 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <div class="fitting-room atelier-room">
+  <div
+    class="fitting-room atelier-room spatial-room"
+    :class="{ 'product-stage': mode === 'garment' }"
+  >
+    <div class="spatial-backdrop" aria-hidden="true"></div>
     <div class="room-label">
-      <span class="live-dot"></span>THE MATERIAL ATELIER<span class="pill">{{
-        $t('服裝優先 · 簡約模特')
+      <span class="live-dot"></span>SMARTFIT / VIRTUAL ATELIER<span class="pill">{{
+        $t(mode === 'garment' ? '服裝獨立預覽' : '你的空間，你的風格')
       }}</span>
     </div>
     <div v-if="loading" class="model-loading">
@@ -196,9 +232,21 @@ onBeforeUnmount(() => {
     <div v-if="!fallback && !loading" class="atelier-view-switch">
       <button :class="{ selected: viewMode === 'full' }" @click="viewMode = 'full'">
         {{ $t('整體造型') }}</button
+      ><button :class="{ selected: viewMode === 'upper' }" @click="viewMode = 'upper'">
+        {{ $t('上身視圖') }}</button
       ><button :class="{ selected: viewMode === 'fabric' }" @click="viewMode = 'fabric'">
         <Icon name="search" :size="13" />{{ $t('織物細節') }}
       </button>
+    </div>
+    <div v-if="!fallback && !loading" class="stage-material-label">
+      <small>{{ $t('面料') }}</small
+      ><b>{{
+        $t(
+          { linen: '天然亚麻', cotton: '有机棉', silk: '桑蚕丝', wool: '精纺羊毛' }[config.fabricId]
+        )
+      }}</b
+      ><span :style="{ background: config.colorHex }"></span
+      ><code>{{ config.colorHex.toUpperCase() }}</code>
     </div>
     <div v-if="!fallback && !loading" class="model-view-tabs">
       <button @click="angle = 0">{{ $t('正面') }}</button

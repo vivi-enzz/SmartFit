@@ -1,6 +1,10 @@
 <script setup>
 defineProps({ name: String, size: { type: Number, default: 20 } });
 const paths = {
+  undo: 'M9 4 4 9l5 5M4 9h10a6 6 0 0 1 0 12',
+  redo: 'm15 4 5 5-5 5M20 9H10a6 6 0 0 0 0 12',
+  tag: 'M3 3h8l10 10-8 8L3 11V3Zm4 4h.01',
+  sliders: 'M4 7h16M4 17h16M8 4v6M16 14v6',
   bookmark: 'M6 3h12v18l-6-4-6 4V3Z',
   camera: 'M3 7h4l2-3h6l2 3h4v14H3V7Zm13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
   arrow: 'M4 12h16m-6-6 6 6-6 6',

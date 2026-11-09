@@ -1,4 +1,5 @@
 <script setup>
+import release from '../../package.json';
 import { ref, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
@@ -135,6 +136,24 @@ function search() {
     </nav>
   </header>
   <main id="main" tabindex="-1"><RouterView /></main>
+  <nav class="mobile-bottom-nav" :aria-label="$t('快捷導航')">
+    <RouterLink to="/" :class="{ active: route.path === '/' }"
+      ><Icon name="search" :size="20" /><span>{{ $t('探索') }}</span></RouterLink
+    ><RouterLink
+      to="/community"
+      :class="{ active: route.path.startsWith('/community') && !route.query.saved }"
+      ><Icon name="heart" :size="20" /><span>{{ $t('社群') }}</span></RouterLink
+    ><RouterLink
+      to="/studio"
+      :class="{ active: route.path.startsWith('/studio') }"
+      class="mobile-create"
+      ><Icon name="plus" :size="22" /><span>{{ $t('訂製') }}</span></RouterLink
+    ><RouterLink to="/community?saved=1" :class="{ active: !!route.query.saved }"
+      ><Icon name="bookmark" :size="20" /><span>{{ $t('收藏') }}</span></RouterLink
+    ><RouterLink to="/account" :class="{ active: route.path === '/account' }"
+      ><Icon name="user" :size="20" /><span>{{ $t('我的') }}</span></RouterLink
+    >
+  </nav>
   <footer class="footer">
     <div>
       <RouterLink to="/" class="brand">smartfit<span class="brand-dot">®</span></RouterLink>
@@ -149,7 +168,7 @@ function search() {
       ><RouterLink to="/credits">{{ $t('攝影與模型來源') }}</RouterLink>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 SmartFit. All styles welcome.</span
+      <span>© 2026 SmartFit · v{{ release.version }}. All styles welcome.</span
       ><span>{{ $t('SEEM5760 展示版本 · 付款與外部服務為模擬') }}</span>
     </div>
   </footer>

@@ -1,4 +1,5 @@
 <script setup>
+import shoppingCredits from '../../public/shopping/credits.json';
 import credits from '../../public/editorial/credits.json';
 import idolCredits from '../../public/editorial/idols/credits.json';
 import { officialPosts, verifiedReport } from '../../../shared/idolEditorial';
@@ -40,6 +41,25 @@ import { officialPosts, verifiedReport } from '../../../shared/idolEditorial';
           ></a
         >
       </div>
+    </section>
+    <section class="panel">
+      <h2>{{ $t('日常穿搭與空間攝影') }}</h2>
+      <p>{{ $t('模特攝影為風格參考；報價對應可編輯的訂製方案，非照片服裝的精確同款。') }}</p>
+      <div class="credits-grid">
+        <a
+          v-for="photo in shoppingCredits"
+          :key="photo.file"
+          :href="photo.sourcePage"
+          target="_blank"
+          rel="noopener noreferrer"
+          ><img :src="'/shopping/' + photo.file" :alt="photo.file" loading="lazy" /><span
+            >{{ photo.author }} · Unsplash ↗</span
+          ></a
+        >
+      </div>
+      <a href="https://unsplash.com/license" target="_blank" rel="noopener noreferrer"
+        >Unsplash License ↗</a
+      >
     </section>
     <section class="panel credits-idol-section">
       <h2>{{ $t('明星活動資料照') }}</h2>

@@ -1,5 +1,7 @@
 <script setup>
 import GarmentArt from './GarmentArt.vue';
+import { estimatePrice } from '../../../shared/catalog';
+import { money } from '../api';
 import Icon from './Icon.vue';
 import { locale } from '../i18n';
 import { computed } from 'vue';
@@ -29,7 +31,15 @@ defineEmits(['like']);
         decoding="async" /><GarmentArt v-else :config="post.config" /><span
         v-if="post.editorial"
         class="post-tag"
-        >{{ $t(post.kind === 'idol' ? 'IDOL 穿搭資料' : '編輯精選') }}</span
+        >{{
+          $t(
+            post.kind === 'idol'
+              ? 'IDOL 穿搭資料'
+              : post.kind === 'daily'
+                ? '日常風格選集'
+                : '編輯精選'
+          )
+        }}</span
       ><span v-else class="post-tag">{{ $t('原創設計') }}</span
       ><span class="post-look-arrow"><Icon name="arrow" :size="17" /></span
     ></RouterLink>
@@ -43,6 +53,18 @@ defineEmits(['like']);
           {{ $t(locale === 'en' && post.captionEn ? post.captionEn : post.caption) }}
         </h3></RouterLink
       >
+      <RouterLink
+        v-if="post.config"
+        :to="{ path: '/studio', query: { look: post.id } }"
+        class="post-style-product"
+        ><span class="post-mini-garment"><GarmentArt :config="post.config" :scene="false" /></span
+        ><span
+          ><small>{{ $t('可訂製的風格提案') }}</small
+          ><b
+            >{{ money(estimatePrice(post.config)) }} <em>{{ $t('起') }}</em></b
+          ></span
+        ><Icon name="arrow" :size="15"
+      /></RouterLink>
       <div class="post-card-footer">
         <span
           ><span class="user-dot" :class="{ 'editor-dot': post.editorial }">{{

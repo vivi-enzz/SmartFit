@@ -6,6 +6,7 @@ import { api } from '../api';
 import { locale } from '../i18n';
 import Icon from '../components/Icon.vue';
 import PostCard from '../components/PostCard.vue';
+import ShopEdit from '../components/ShopEdit.vue';
 import IdolSpotlight from '../components/IdolSpotlight.vue';
 import { editorial } from '../../../shared/editorial';
 const city = ref('Hong Kong'),
@@ -88,6 +89,7 @@ async function like(p) {
       ><Icon name="spark" :size="18" /><span>WEAR IT YOUR WAY.</span
       ><Icon name="spark" :size="18" /><span>SMARTFIT.</span>
     </div>
+    <ShopEdit />
     <section class="section trend-section">
       <div class="section-title">
         <div>

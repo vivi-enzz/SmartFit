@@ -1,0 +1,1156 @@
+/* 2.2 shopping and content surfaces */
+.shop-edit {
+  padding-top: 64px;
+  padding-bottom: 46px;
+}
+.shop-category-tabs {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid #e9e7e4;
+  padding-bottom: 17px;
+  margin: 22px 0;
+}
+.shop-category-tabs button {
+  border: 1px solid #e4e2df;
+  border-radius: 30px;
+  padding: 10px 20px;
+  font-size: 12px;
+  background: #fff;
+  color: #68635d;
+}
+.shop-category-tabs button.selected {
+  background: #242321;
+  border-color: #242321;
+  color: #fff;
+}
+.shop-category-tabs > span {
+  margin-left: auto;
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #9a938c;
+}
+.shop-product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px 24px;
+}
+.shop-product-card {
+  min-width: 0;
+}
+.shop-product-photo {
+  display: block;
+  position: relative;
+  aspect-ratio: 4/5;
+  background: #f2efeb;
+  overflow: hidden;
+}
+.shop-product-photo > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 38%;
+  transition: transform 0.5s;
+}
+.shop-product-card:hover .shop-product-photo > img {
+  transform: scale(1.025);
+}
+.shop-product-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: #ffffffdf;
+  padding: 6px 9px;
+  font-size: 8px;
+  letter-spacing: 1px;
+}
+.shop-photo-action {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: #ffffffdf;
+  backdrop-filter: blur(16px);
+  padding: 12px;
+  font-size: 12px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: 0.2s;
+}
+.shop-product-card:hover .shop-photo-action,
+.shop-product-card:focus-within .shop-photo-action {
+  opacity: 1;
+  transform: none;
+}
+.shop-product-copy {
+  padding: 17px 1px 0;
+}
+.shop-product-copy > small {
+  font-size: 8px;
+  color: #a19990;
+  letter-spacing: 1.5px;
+}
+.shop-product-copy h3 {
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 7px 0 8px;
+  font-weight: 600;
+}
+.shop-product-price {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+.shop-product-price > span {
+  font-weight: 400;
+  color: #999;
+  font-size: 10px;
+  margin-left: 7px;
+}
+.shop-swatches {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  margin-top: 12px;
+}
+.shop-swatches > button {
+  width: 17px;
+  height: 17px;
+  border: 2px solid #fff;
+  outline: 1px solid #ddd;
+  border-radius: 1px;
+  padding: 0;
+}
+.shop-swatches > button.selected {
+  outline-color: #252525;
+}
+.shop-swatches > span {
+  font-size: 9px;
+  color: #999;
+  margin-left: 5px;
+}
+.shop-swatches > a {
+  margin-left: auto;
+}
+.shop-image-note {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  font-size: 10px;
+  color: #aaa;
+  margin-top: 25px;
+  line-height: 1.8;
+}
+.shop-image-note a {
+  margin-left: 5px;
+  text-decoration: underline;
+  white-space: nowrap;
+}
+/* Spatial atelier: the garment canvas stays real and interactive above a photographic room. */
+.shopping-studio {
+  max-width: 1560px;
+}
+.studio-mode-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 0 18px;
+  gap: 18px;
+}
+.studio-mode-tabs {
+  display: flex;
+  background: #efede9;
+  padding: 4px;
+  border-radius: 50px;
+}
+.studio-mode-tabs button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 11px 22px;
+  border: 0;
+  border-radius: 40px;
+  font-size: 12px;
+  color: #8b857e;
+  background: transparent;
+}
+.studio-mode-tabs button.selected {
+  background: #fff;
+  color: #252421;
+  box-shadow: 0 2px 6px #0000000a;
+}
+.history-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.history-controls > span {
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  color: #999;
+  margin-right: 10px;
+}
+.history-controls .icon-button {
+  border: 1px solid #e5e2de;
+  border-radius: 50%;
+  height: 36px;
+  width: 36px;
+}
+.history-controls button:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+.shopping-studio .studio-layout {
+  gap: 0;
+  align-items: stretch;
+  background: #d3c6b2;
+  border: 1px solid #ded7cc;
+  border-radius: 26px;
+  overflow: hidden;
+  grid-template-columns: minmax(0, 1.45fr) minmax(340px, 1fr);
+  isolation: isolate;
+}
+.shopping-studio .spatial-room {
+  border-radius: 0;
+  background: #c3b8a5;
+  height: 860px;
+  top: 0;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+}
+.spatial-backdrop {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, #332f2533, #8b7a5322 58%, #7c614642),
+    url('/shopping/warm-interior.webp') center/cover;
+  filter: blur(1px);
+  transform: scale(1.02);
+  pointer-events: none;
+}
+.spatial-room .webgl-host {
+  position: relative;
+  z-index: 1;
+}
+.spatial-room .room-label {
+  top: 25px;
+  color: #fff;
+  left: 26px;
+  right: 26px;
+  text-shadow: 0 1px 8px #0005;
+  font-size: 8px;
+}
+.spatial-room .room-label .pill {
+  display: none;
+}
+.spatial-room .atelier-view-switch {
+  top: 62px;
+  bottom: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  width: max-content;
+  max-width: calc(100% - 32px);
+  padding: 5px;
+  border: 1px solid #ffffff55;
+  background: #8c82736e;
+  backdrop-filter: blur(24px);
+  border-radius: 40px;
+  box-shadow: 0 5px 20px #28231e11;
+  z-index: 3;
+}
+.spatial-room .atelier-view-switch button {
+  color: #fff;
+  border-radius: 30px;
+  padding: 10px 15px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.spatial-room .atelier-view-switch button.selected {
+  color: #fff;
+  background: #ffffff35;
+}
+.spatial-room .model-view-tabs {
+  bottom: 112px;
+  background: #ffffff29;
+  border-color: #fff5;
+  backdrop-filter: blur(20px);
+  z-index: 3;
+}
+.spatial-room .model-view-tabs button {
+  color: #fff;
+  font-size: 10px;
+}
+.spatial-room .room-controls {
+  bottom: 60px;
+  z-index: 3;
+  color: #fff;
+}
+.spatial-room .room-controls .secondary {
+  color: #fff;
+  border-color: #ffffff4d;
+  background: #ffffff24;
+  backdrop-filter: blur(20px);
+  border-radius: 30px;
+  padding: 9px 14px;
+}
+.spatial-room .rotation-label {
+  color: #fff;
+}
+.spatial-room .room-note {
+  bottom: 18px;
+  left: 20px;
+  right: 20px;
+  color: #fff;
+  font-size: 8px;
+  z-index: 3;
+  text-shadow: 0 1px 5px #0005;
+  text-align: center;
+}
+.spatial-room .model-loading {
+  background: #c3b8a580;
+  backdrop-filter: blur(5px);
+  z-index: 4;
+  color: #fff;
+}
+.stage-material-label {
+  position: absolute;
+  left: 24px;
+  top: 135px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  background: #ffffff24;
+  border: 1px solid #ffffff42;
+  backdrop-filter: blur(20px);
+  border-radius: 12px;
+  padding: 15px;
+  color: #fff;
+  pointer-events: none;
+  max-width: 135px;
+}
+.stage-material-label small {
+  font-size: 9px;
+  opacity: 0.7;
+}
+.stage-material-label b {
+  font-size: 12px;
+}
+.stage-material-label > span {
+  height: 22px;
+  width: 22px;
+  border-radius: 50%;
+  border: 2px solid #ffffff80;
+  margin-top: 7px;
+}
+.stage-material-label code {
+  font-size: 9px;
+  opacity: 0.75;
+}
+.shopping-studio .studio-panel {
+  padding: 24px;
+  background: #f8f5efed;
+  max-height: 860px;
+  overflow: auto;
+  scrollbar-width: thin;
+  min-width: 0;
+}
+.shopping-studio .studio-panel > .tabs {
+  position: sticky;
+  top: -24px;
+  z-index: 5;
+  background: #f8f5efee;
+  backdrop-filter: blur(20px);
+  padding-top: 12px;
+  margin-top: -12px;
+}
+.shopping-studio .studio-panel .option-field {
+  margin-top: 22px;
+}
+.shopping-studio .studio-panel .option-buttons button {
+  background: #ffffff85;
+  border: 1px solid #ded9d0;
+  border-radius: 8px;
+  min-height: 34px;
+  padding: 7px 11px;
+  font-size: 10px;
+}
+.shopping-studio .studio-panel .option-buttons button.selected {
+  color: #fff;
+  background: #544f46;
+  border-color: #544f46;
+}
+.shopping-studio .studio-panel .fabric-options {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.shopping-studio .studio-panel .fabric-options button {
+  padding: 12px 9px;
+  background: #fff8;
+  border-color: #dfd9d0;
+  border-radius: 10px;
+}
+.shopping-studio .studio-panel .fabric-options button.selected {
+  background: #eae5dc;
+  border-color: #827768;
+}
+.shopping-studio .studio-panel .preset-grid {
+  gap: 7px;
+}
+.shopping-studio .studio-panel .preset-grid button {
+  background: #fff8;
+  border-color: #e3ded6;
+  border-radius: 10px;
+  padding: 10px;
+}
+.shopping-studio .studio-panel .field input {
+  background: #fff8;
+  border-color: #dfd9d0;
+  border-radius: 8px;
+}
+.shopping-studio .studio-summary {
+  position: sticky;
+  bottom: -24px;
+  padding: 20px 0;
+  background: #f8f5eff5;
+  backdrop-filter: blur(25px);
+  z-index: 5;
+  border-top: 1px solid #ded8cf;
+  box-shadow: 0 -12px 22px #f8f5ef99;
+  margin-top: 28px;
+}
+.shopping-studio .studio-summary strong {
+  font-size: 25px;
+}
+.shopping-studio .summary-buttons {
+  display: flex;
+  gap: 8px;
+}
+.shopping-studio .summary-buttons button {
+  flex: 1;
+  border-radius: 30px;
+  font-size: 11px;
+  white-space: nowrap;
+  min-height: 43px;
+}
+.size-guide-card {
+  background: #e9e3d9;
+  padding: 18px;
+  border-radius: 12px;
+  margin: 20px 0;
+}
+.size-guide-card > span {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #998c7a;
+}
+.size-guide-card h3 {
+  font-size: 19px;
+  margin: 10px 0;
+}
+.size-guide-card p {
+  font-size: 11px;
+  color: #8e8374;
+}
+/* The same editable assembly in a dark material workspace. */
+.shopping-studio.garment-mode .studio-layout {
+  background: #151719;
+  border-color: #25272a;
+}
+.shopping-studio .spatial-room.product-stage {
+  background: radial-gradient(ellipse at 45% 35%, #383b3e, #131517 75%);
+}
+.product-stage .spatial-backdrop {
+  display: none;
+}
+.shopping-studio.garment-mode .studio-panel {
+  background: #181a1d;
+  color: #e8e7e5;
+}
+.shopping-studio.garment-mode .studio-panel > .tabs,
+.shopping-studio.garment-mode .studio-summary {
+  background: #181a1df5;
+  color: #eee;
+  border-color: #343639;
+  box-shadow: none;
+}
+.shopping-studio.garment-mode .studio-panel .tabs button {
+  color: #939598;
+}
+.shopping-studio.garment-mode .studio-panel .tabs button.selected {
+  color: #fff;
+  border-color: #fff;
+}
+.shopping-studio.garment-mode .studio-panel .option-field > span,
+.shopping-studio.garment-mode .studio-panel .option-field-heading b {
+  color: #ddd;
+}
+.shopping-studio.garment-mode .studio-panel .option-buttons button,
+.shopping-studio.garment-mode .studio-panel .fabric-options button,
+.shopping-studio.garment-mode .studio-panel .preset-grid button {
+  background: #23262a;
+  color: #bdc0c3;
+  border-color: #3b3e42;
+}
+.shopping-studio.garment-mode .studio-panel .option-buttons button.selected,
+.shopping-studio.garment-mode .studio-panel .fabric-options button.selected {
+  background: #42464b;
+  color: #fff;
+  border-color: #d4d4d4;
+}
+.shopping-studio.garment-mode .studio-panel .field input {
+  background: #25272b;
+  color: #fff;
+  border-color: #414347;
+}
+.shopping-studio.garment-mode .studio-panel .size-guide-card {
+  background: #272a2e;
+}
+.shopping-studio.garment-mode .studio-panel .layer-color-field {
+  color: #bbb;
+}
+.shopping-studio.garment-mode .studio-summary strong,
+.shopping-studio.garment-mode .studio-panel .body-panel h3 {
+  color: #fff;
+}
+.shopping-studio.garment-mode .studio-panel .option-buttons button:disabled {
+  opacity: 0.25;
+}
+/* Community: content first, with linked styling proposals and honest source badges. */
+.community-discovery-row {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  padding: 22px 0 26px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 21px;
+}
+.community-discovery-row > button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  color: #8e8b87;
+  min-width: 68px;
+}
+.community-discovery-row > button > span {
+  display: block;
+  width: 66px;
+  height: 66px;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  padding: 3px;
+}
+.community-discovery-row > button.selected > span {
+  border-color: #ff354f;
+}
+.community-discovery-row > button img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center 30%;
+}
+.community-discovery-row > button > b {
+  font-size: 11px;
+  font-weight: 500;
+}
+.community-discovery-row > button.selected > b {
+  color: #252525;
+}
+.community-studio-drop {
+  margin-left: auto;
+  padding: 18px 26px;
+  border: 1px solid #e6e1da;
+  border-radius: 10px;
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+  background: linear-gradient(120deg, #f4efe7, #faf9f6);
+  min-width: 250px;
+}
+.community-studio-drop > span {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: #aaa193;
+}
+.community-studio-drop > b {
+  font-size: 17px;
+}
+.community-studio-drop > small {
+  font-size: 10px;
+  color: #998c79;
+}
+.community-page .community-editor-band {
+  display: none;
+}
+.community-page .page-heading {
+  margin-bottom: 6px;
+}
+.community-page .community-topic-strip {
+  margin-bottom: 10px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  gap: 8px;
+}
+.community-topic-strip > a {
+  border-radius: 30px;
+  background: #f4f4f4;
+  color: #888;
+  padding: 8px 13px;
+  font-size: 9px;
+}
+.community-page .post-grid {
+  gap: 25px 19px;
+}
+.community-page .post-grid .post-image {
+  aspect-ratio: 4/5;
+  border-radius: 12px;
+}
+.community-page .post-grid .post-image img {
+  object-position: center 32%;
+}
+.post-card .post-tag {
+  font-size: 8px;
+  border-radius: 20px;
+  padding: 6px 9px;
+  background: #fffdf4eb;
+  color: #645e54;
+  max-width: calc(100% - 30px);
+}
+.post-card .post-look-arrow {
+  height: 29px;
+  width: 29px;
+  bottom: 12px;
+  right: 12px;
+}
+.community-page .post-grid .post-card h3 {
+  font-size: 12px;
+  line-height: 1.7;
+  min-height: 3.4em;
+  max-height: 3.4em;
+  font-weight: 600;
+}
+.post-kicker {
+  font-size: 8px !important;
+  letter-spacing: 1.2px !important;
+  color: #aaa !important;
+  margin-bottom: 5px !important;
+}
+.post-style-product {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  border: 1px solid #efedeb;
+  border-radius: 7px;
+  padding: 5px 9px;
+  margin-top: 10px;
+  background: #faf9f7;
+  color: #4c4841;
+}
+.post-mini-garment {
+  width: 28px;
+  height: 39px;
+  background: #eeebe5;
+  border-radius: 3px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.post-mini-garment > svg {
+  width: 100%;
+  height: 100%;
+  transform: scale(1.1);
+}
+.post-style-product > span:nth-child(2) {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.post-style-product small {
+  font-size: 8px;
+  color: #9a9388;
+  white-space: nowrap;
+}
+.post-style-product b {
+  font-size: 10px;
+  font-weight: 500;
+}
+.post-style-product em {
+  font-size: 8px;
+  font-style: normal;
+  color: #999;
+}
+.post-style-product > svg {
+  margin-left: auto;
+}
+.post-card-footer {
+  font-size: 9px;
+}
+.post-source-date {
+  font-size: 8px;
+  color: #999;
+}
+.community-idol-archive {
+  margin-top: 40px;
+  border-top: 1px solid #eee;
+  padding-top: 22px;
+}
+.community-idol-archive > summary {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  cursor: pointer;
+  list-style: none;
+  margin-bottom: 25px;
+}
+.community-idol-archive > summary > span {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: #a3a3a3;
+}
+.community-idol-archive > summary > b {
+  font-size: 13px;
+  font-weight: 500;
+}
+.community-idol-archive > summary > svg {
+  margin-left: auto;
+}
+.community-idol-archive > summary::-webkit-details-marker {
+  display: none;
+}
+.shoppable-post-art {
+  position: relative;
+}
+.photo-tag-toggle {
+  position: absolute;
+  bottom: 22px;
+  left: 22px;
+  border: 1px solid #fff6;
+  background: #ffffffcc;
+  backdrop-filter: blur(15px);
+  border-radius: 50%;
+  height: 40px;
+  width: 40px;
+  display: grid;
+  place-items: center;
+  z-index: 2;
+}
+.photo-style-tag {
+  position: absolute;
+  right: 24px;
+  top: 55%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 15px 18px;
+  background: #fffffff0;
+  border-radius: 10px;
+  box-shadow: 0 6px 30px #0001;
+  max-width: 65%;
+  backdrop-filter: blur(20px);
+}
+.photo-style-tag > small {
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: #999;
+}
+.photo-style-tag > b {
+  font-size: 12px;
+  font-weight: 500;
+}
+.photo-style-tag > span:last-child {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 11px;
+}
+.tag-anchor {
+  position: absolute;
+  left: -20px;
+  top: 32px;
+  width: 9px;
+  height: 9px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px #fff4;
+}
+.tag-anchor:after {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 2px;
+  width: 11px;
+  height: 1px;
+  background: #fff;
+}
+@media (min-width: 1600px) {
+  .shop-product-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 18px;
+  }
+  .shop-product-copy h3 {
+    font-size: 13px;
+  }
+}
+@media (max-width: 1150px) {
+  .shopping-studio .studio-layout {
+    grid-template-columns: minmax(0, 1.1fr) minmax(320px, 1fr);
+  }
+  .stage-material-label {
+    left: 15px;
+    top: 130px;
+    padding: 10px;
+  }
+  .history-controls > span {
+    display: none;
+  }
+  .shopping-studio .studio-panel {
+    padding: 19px;
+  }
+  .shopping-studio .studio-summary {
+    bottom: -19px;
+  }
+  .community-discovery-row {
+    gap: 18px;
+  }
+  .community-studio-drop {
+    min-width: 200px;
+    padding: 16px;
+  }
+}
+@media (max-width: 800px) {
+  .shop-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 25px 14px;
+  }
+  .shop-category-tabs {
+    overflow: auto;
+    white-space: nowrap;
+    gap: 6px;
+  }
+  .shop-category-tabs button {
+    padding: 9px 15px;
+    font-size: 10px;
+  }
+  .shop-category-tabs > span {
+    display: none;
+  }
+  .shop-product-copy h3 {
+    font-size: 12px;
+  }
+  .shop-product-price {
+    font-size: 12px;
+  }
+  .shop-product-badge {
+    font-size: 7px;
+    top: 11px;
+    left: 11px;
+  }
+  .shop-photo-action {
+    opacity: 1;
+    transform: none;
+    padding: 9px;
+    font-size: 10px;
+    left: 11px;
+    right: 11px;
+    bottom: 11px;
+  }
+  .shop-image-note {
+    display: block;
+    font-size: 9px;
+  }
+  .shop-image-note > svg {
+    display: none;
+  }
+  .shopping-studio .studio-layout {
+    display: flex;
+    flex-direction: column;
+    border-radius: 18px;
+  }
+  .shopping-studio .spatial-room {
+    height: 620px;
+    position: relative;
+    top: auto;
+  }
+  .shopping-studio .studio-panel {
+    max-height: none;
+    overflow: visible;
+    padding: 22px;
+  }
+  .shopping-studio .studio-panel > .tabs {
+    top: 0;
+    position: relative;
+  }
+  .shopping-studio .studio-summary {
+    position: relative;
+    bottom: auto;
+  }
+  .shopping-studio .studio-panel .preset-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .community-studio-drop {
+    display: none;
+  }
+  .community-discovery-row {
+    gap: 24px;
+    padding: 18px 0;
+  }
+  .community-discovery-row > button {
+    min-width: 55px;
+  }
+  .community-discovery-row > button > span {
+    height: 57px;
+    width: 57px;
+  }
+  .community-page .post-grid {
+    gap: 22px 12px;
+  }
+  .community-page .post-grid .post-card h3 {
+    font-size: 11px;
+  }
+  .post-style-product {
+    gap: 5px;
+    padding: 5px;
+  }
+  .post-style-product small {
+    font-size: 7px;
+  }
+  .post-style-product > svg {
+    display: none;
+  }
+  .community-idol-archive > summary {
+    gap: 10px;
+  }
+  .community-idol-archive > summary > b {
+    font-size: 11px;
+  }
+  .shop-edit {
+    padding-top: 38px;
+  }
+  .community-page .community-toolbar {
+    flex-wrap: wrap;
+  }
+  .post-card-footer > span {
+    font-size: 8px;
+  }
+}
+@media (max-width: 480px) {
+  .studio-mode-tabs button {
+    padding: 10px 12px;
+    font-size: 10px;
+    gap: 5px;
+  }
+  .history-controls {
+    gap: 4px;
+  }
+  .history-controls .icon-button {
+    height: 30px;
+    width: 30px;
+  }
+  .studio-mode-bar {
+    gap: 5px;
+  }
+  .shopping-studio .spatial-room {
+    height: 555px;
+  }
+  .spatial-room .atelier-view-switch {
+    top: 62px;
+  }
+  .spatial-room .atelier-view-switch button {
+    font-size: 9px;
+    padding: 9px 12px;
+  }
+  .spatial-room .room-label {
+    font-size: 7px;
+    left: 18px;
+    right: 18px;
+    letter-spacing: 1px;
+  }
+  .stage-material-label {
+    top: 119px;
+    max-width: 100px;
+    background: #ffffff30;
+    padding: 9px;
+  }
+  .stage-material-label b {
+    font-size: 10px;
+  }
+  .stage-material-label code {
+    font-size: 8px;
+  }
+  .stage-material-label > span {
+    height: 17px;
+    width: 17px;
+    margin-top: 3px;
+  }
+  .spatial-room .model-view-tabs {
+    bottom: 103px;
+  }
+  .spatial-room .room-controls {
+    bottom: 55px;
+    left: 15px;
+    right: 15px;
+  }
+  .spatial-room .room-note {
+    font-size: 7px;
+    bottom: 15px;
+  }
+  .shopping-studio .studio-panel {
+    padding: 18px;
+  }
+  .shopping-studio .studio-panel .preset-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .shopping-studio .studio-summary {
+    padding-bottom: 0;
+  }
+  .community-discovery-row {
+    justify-content: space-between;
+    gap: 5px;
+  }
+  .community-page .post-grid .post-image {
+    border-radius: 8px;
+  }
+  .community-page .post-card .post-tag {
+    font-size: 7px;
+    left: 9px;
+    top: 9px;
+    padding: 4px 7px;
+  }
+  .shop-swatches {
+    gap: 5px;
+  }
+  .shop-swatches > button {
+    width: 14px;
+    height: 14px;
+  }
+  .shop-swatches > span {
+    font-size: 8px;
+  }
+  .shop-product-copy {
+    padding-top: 12px;
+  }
+  .shop-product-copy > small {
+    font-size: 6px;
+    letter-spacing: 1px;
+  }
+  .photo-style-tag {
+    right: 15px;
+    padding: 12px;
+    max-width: 70%;
+  }
+  .photo-style-tag > b {
+    font-size: 10px;
+  }
+  .community-idol-archive > summary > span {
+    font-size: 7px;
+    letter-spacing: 1px;
+  }
+  .community-idol-archive > summary > b {
+    font-size: 10px;
+  }
+}
+.hex-color-control {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 13px;
+  margin-top: 15px;
+  border: 1px solid #dcd6cc;
+  background: #fff8;
+  border-radius: 9px;
+}
+.hex-color-control > label {
+  font-size: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-right: auto;
+}
+.hex-color-control input[type='color'] {
+  height: 27px;
+  width: 30px;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.hex-color-control > span {
+  font-size: 9px;
+  color: #999;
+}
+.hex-color-control > input {
+  font: 11px monospace;
+  background: transparent;
+  border: 0;
+  width: 80px;
+  color: inherit;
+  padding: 5px;
+}
+.garment-mode .hex-color-control {
+  background: #25272b;
+  border-color: #414347;
+  color: #ddd;
+}
+.mobile-bottom-nav {
+  display: none;
+}
+@media (max-width: 800px) {
+  body {
+    padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
+  }
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: calc(63px + env(safe-area-inset-bottom, 0px));
+    padding: 7px 12px calc(6px + env(safe-area-inset-bottom, 0px));
+    z-index: 40;
+    border-top: 1px solid #eeeeee;
+    background: #ffffffee;
+    backdrop-filter: blur(20px);
+    justify-content: space-around;
+    align-items: center;
+  }
+  .mobile-bottom-nav > a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: #aaa;
+    min-width: 45px;
+    font-size: 9px;
+  }
+  .mobile-bottom-nav > a.active {
+    color: #252525;
+  }
+  .mobile-bottom-nav > a.mobile-create > svg {
+    background: #ff354f;
+    border-radius: 8px;
+    box-sizing: content-box;
+    padding: 4px;
+    margin-top: -8px;
+    color: #fff;
+  }
+  .toast {
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+}
+/* The no-WebGL preview must paint above the photographic room too. */
+.spatial-room > .garment-art {
+  position: relative;
+  z-index: 1;
+}

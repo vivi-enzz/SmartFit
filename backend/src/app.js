@@ -193,7 +193,7 @@ export function createApp({
     );
   };
   app.get('/api/health', (req, res) =>
-    res.json({ ok: true, mode: 'demo', storage: 'sqlite', version: '2.1.0' })
+    res.json({ ok: true, mode: 'demo', storage: 'sqlite', version: '2.2.0' })
   );
   app.get('/api/catalog', (req, res) =>
     res.json({ fabrics, options, labels, defaults, metricRanges, statusLabels, providers })

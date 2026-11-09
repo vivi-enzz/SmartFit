@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { api, money, date } from '../api';
@@ -13,7 +13,13 @@ const route = useRoute(),
   store = useStore(),
   comment = ref(''),
   busy = ref(false),
-  shareUrl = ref('');
+  shareUrl = ref(''),
+  showTag = ref(true);
+const saved = computed(() => (store.state.savedLooks || []).includes(post.value?.id));
+function savePost() {
+  if (!auth()) return;
+  store.commit('toggleSaved', post.value.id);
+}
 const {
   data: post,
   error,
@@ -78,12 +84,30 @@ async function share() {
     <RouterLink to="/community" class="back-link">{{ $t('← 返回穿搭社区') }}</RouterLink>
     <p v-if="error" class="error-box" role="alert">{{ $t(error) }}</p>
     <div v-if="post" class="post-detail">
-      <div class="post-detail-art">
+      <div class="post-detail-art shoppable-post-art">
         <img
           v-if="post.imageUrl"
           :src="post.imageUrl"
           :alt="$t(post.caption.slice(0, 60))"
         /><GarmentArt v-else :config="post.config" />
+        <button
+          class="photo-tag-toggle"
+          :aria-label="$t('顯示造型提案')"
+          :aria-pressed="showTag"
+          @click="showTag = !showTag"
+        >
+          <Icon name="tag" :size="18" />
+        </button>
+        <RouterLink
+          v-if="showTag"
+          :to="{ path: '/studio', query: { look: post.id } }"
+          class="photo-style-tag"
+          ><span class="tag-anchor"></span><small>SMARTFIT / STYLE MATCH</small
+          ><b>{{ $t('探索這份靈感的訂製方案') }}</b
+          ><span
+            >{{ money(estimatePrice(post.config)) }} {{ $t('起') }}
+            <Icon name="arrow" :size="15" /></span
+        ></RouterLink>
       </div>
       <article>
         <div class="author-line">
@@ -125,6 +149,14 @@ async function share() {
           }}</a>
         </div>
         <div class="post-interactions">
+          <button
+            class="secondary"
+            :class="{ liked: saved }"
+            :aria-pressed="saved"
+            @click="savePost"
+          >
+            <Icon name="bookmark" :size="17" />{{ $t(saved ? '取消收藏' : '收藏靈感') }}
+          </button>
           <button
             :class="['secondary', { liked: post.liked }]"
             :aria-pressed="post.liked"

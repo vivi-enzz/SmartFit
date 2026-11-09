@@ -18,7 +18,7 @@ const c = computed(() => ({
   ...props.config,
 }));
 const hem = computed(() =>
-  c.value.garmentType === 'top'
+  c.value.garmentType !== 'dress'
     ? 260
     : c.value.length === 'short'
       ? 302
@@ -89,6 +89,28 @@ const width = computed(() =>
         v-for="n in 11"
         :key="n"
         :d="`M${133 + n * 4.5} 230 Q${133 + n * 4.5} ${hem - 55} ${160 - width + (n / 12) * width * 2} ${hem + 5}`"
+      />
+    </g>
+    <g
+      v-if="c.garmentType === 'hoodie'"
+      data-garment="hoodie"
+      :fill="c.colorHex"
+      stroke="#29352c"
+      stroke-opacity=".3"
+    >
+      <path
+        d="M131 126Q103 100 126 72Q160 47 194 72Q217 100 189 126L176 120Q193 99 176 84Q160 76 144 84Q127 99 144 120Z"
+      />
+      <path d="M132 220 143 199h34l11 21v22h-56Z" />
+      <path
+        d="M136 127 140 180M184 127 181 177"
+        fill="none"
+        stroke="#eee"
+        stroke-opacity=".8"
+        stroke-width="2"
+      />
+      <path
+        d="M63 293 88 301 86 316 59 309ZM232 301 257 293 261 309 234 316ZM96 258Q160 276 224 258v11Q160 287 96 269Z"
       />
     </g>
     <g v-if="c.construction === 'wrap'" data-construction="wrap">

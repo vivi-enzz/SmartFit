@@ -1,6 +1,7 @@
 import { bodyScale } from '../model.js';
 import { necklineY } from '../avatarShape.js';
 import { normalizeDesignConfig } from '../../../shared/catalog.js';
+import { addHoodieDetails } from './hoodie.js';
 import { fabricMaterial } from './materials.js';
 export function createGarments(T, input, metrics = {}, textures = new Map()) {
   const c = normalizeDesignConfig(input),
@@ -13,21 +14,28 @@ export function createGarments(T, input, metrics = {}, textures = new Map()) {
     roughness: 0.85,
   });
   const bottom =
-    c.garmentType === 'top'
+    c.garmentType !== 'dress'
       ? 1.045
       : c.length === 'short'
         ? 0.77
         : c.length === 'maxi'
           ? 0.22
           : 0.49;
-  const hem = c.silhouette === 'A-line' ? 0.365 : c.silhouette === 'fitted' ? 0.215 : 0.275;
+  const hem =
+    c.garmentType === 'hoodie'
+      ? 0.24
+      : c.silhouette === 'A-line'
+        ? 0.365
+        : c.silhouette === 'fitted'
+          ? 0.215
+          : 0.275;
   const radius = (y) => {
     const profile = [
       [bottom, hem * s.hip],
       [0.98, 0.235 * s.hip],
-      [1.19, 0.168 * s.waist],
-      [1.39, 0.205 * s.bust],
-      [1.535, 0.207 * s.bust],
+      [1.19, (c.garmentType === 'hoodie' ? 0.228 : 0.168) * s.waist],
+      [1.39, (c.garmentType === 'hoodie' ? 0.232 : 0.205) * s.bust],
+      [1.535, (c.garmentType === 'hoodie' ? 0.232 : 0.207) * s.bust],
     ].filter((p, i) => i === 0 || p[0] > bottom);
     for (let i = 0; i < profile.length - 1; i++)
       if (y <= profile[i + 1][0]) {
@@ -64,7 +72,11 @@ export function createGarments(T, input, metrics = {}, textures = new Map()) {
         const fold =
           (pleated ? Math.cos(a * 24) * 0.014 * Math.max(0, (1.18 - y) / (1.18 - bottom)) : 0) +
           (tier ? Math.sin(a * 18) * 0.012 * (1 - j / rows) : 0);
-        const r = radius(y) + offset + fold;
+        const wrinkle =
+          c.garmentType === 'hoodie'
+            ? Math.sin(a * 13 + y * 22) * 0.0035 + Math.cos(a * 9 - y * 17) * 0.002
+            : 0;
+        const r = radius(y) + offset + fold + wrinkle;
         let yy = hi > 1.4 ? necklineY((Math.sin(a) * r) / s.bust, Math.cos(a), y, c.collar) : y;
         if (c.construction === 'wrap' && y < 1.18) yy += Math.sin(a) * 0.018 * (1 - j / rows);
         positions.push(Math.sin(a) * r, yy * s.height, Math.cos(a) * r * 0.76 + 0.025);
@@ -269,5 +281,6 @@ export function createGarments(T, input, metrics = {}, textures = new Map()) {
       put('monogram-bar', new T.BoxGeometry(0.018, 0.002, 0.003), thread, x + 0.008, y + 0.012, z);
     }
   }
+  if (c.garmentType === 'hoodie') addHoodieDetails(T, g, c, s, textures);
   return g;
 }
