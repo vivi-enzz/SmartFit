@@ -99,13 +99,31 @@ async function share() {
         <h1 class="post-caption">
           {{ $t(locale === 'en' && post.captionEn ? post.captionEn : post.caption) }}
         </h1>
-        <p v-if="post.editorial" class="editorial-photo-note">
+        <p
+          v-if="post.editorial && post.credit?.source !== 'Wikimedia Commons'"
+          class="editorial-photo-note"
+        >
           {{
             $t(
               '攝影來源：Unsplash。此為編輯靈感選集，非照片人物投稿或購買見證。訂製配置為風格延伸，非照片服裝的精確複製。'
             )
           }}<RouterLink to="/credits">{{ $t('查看來源 ↗') }}</RouterLink>
         </p>
+        <div
+          v-if="post.editorial && post.credit?.source === 'Wikimedia Commons'"
+          class="source-credit-panel"
+        >
+          <strong>{{ $t('活動資料照') }} · {{ post.eventDate }}</strong>
+          <p>{{ post.credit.author }} · {{ post.credit.license }}</p>
+          <p>{{ $t('照片為獨立活動紀錄，非本人在本站投稿或產品代言。') }}</p>
+          <a :href="post.credit.sourceUrl" target="_blank" rel="noopener noreferrer"
+            >{{ $t('原始照片與署名') }} ↗</a
+          >
+          ·
+          <a :href="post.credit.licenseUrl" target="_blank" rel="noopener noreferrer">{{
+            $t('圖片授權')
+          }}</a>
+        </div>
         <div class="post-interactions">
           <button
             :class="['secondary', { liked: post.liked }]"

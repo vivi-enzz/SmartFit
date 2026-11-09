@@ -3,6 +3,7 @@ import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import { api, money } from '../api';
+import { translate } from '../i18n';
 import {
   defaults,
   options,
@@ -16,12 +17,14 @@ import {
 } from '../../../shared/catalog';
 import FittingRoom from '../components/FittingRoom.vue';
 import Icon from '../components/Icon.vue';
+import { styleTemplates } from '../../../shared/styleTemplates';
 const store = useStore(),
   route = useRoute(),
   router = useRouter();
-const config = reactive({ ...defaults }),
+const studioDefaults = { ...styleTemplates[0].config };
+const config = reactive({ ...studioDefaults }),
   metrics = reactive({ height: 168, bust: 88, waist: 68, hip: 94 }),
-  name = ref('我的自在亚麻裙'),
+  name = ref(translate('我的細褶訂製裙')),
   consent = ref(false),
   tab = ref('design'),
   busy = ref(false),
@@ -53,8 +56,10 @@ function allowed(k, v) {
 watch(
   () => config.garmentType,
   (v) => {
-    if (v === 'top') config.length = 'short';
-    else if (config.length === 'short') config.length = 'midi';
+    if (v === 'top') {
+      config.length = 'short';
+      if (config.construction === 'tiered') config.construction = 'classic';
+    } else if (config.length === 'short') config.length = 'midi';
   }
 );
 watch(
@@ -66,7 +71,11 @@ watch(
 async function init() {
   error.value = '';
   savedId.value = '';
-  Object.assign(config, defaults);
+  Object.assign(config, studioDefaults);
+  if (route.query.template) {
+    const preset = styleTemplates.find((t) => t.id === route.query.template);
+    if (preset) Object.assign(config, preset.config);
+  }
   if (route.query.fabric && fabrics.some((f) => f.id === route.query.fabric))
     config.fabricId = route.query.fabric;
   if (/^#[a-f0-9]{6}$/i.test(route.query.color || '')) config.colorHex = route.query.color;
@@ -201,6 +210,23 @@ onMounted(() => {
           </button>
         </div>
         <div v-show="tab === 'design'">
+          <div class="atelier-presets">
+            <div class="option-field-heading">
+              <b>{{ $t('從風格提案開始') }}</b
+              ><small>STYLE STARTERS</small>
+            </div>
+            <div class="preset-grid">
+              <button
+                v-for="preset in styleTemplates"
+                :key="preset.id"
+                @click="Object.assign(config, preset.config)"
+              >
+                <span class="preset-fabric" :style="{ background: preset.config.colorHex }"></span
+                ><b>{{ $t(preset.title) }}</b
+                ><small>{{ preset.subtitle }}</small>
+              </button>
+            </div>
+          </div>
           <label class="field"
             >{{ $t('设计名称')
             }}<input v-model="name" maxlength="60" :placeholder="$t('为这件作品起个名字')"
@@ -223,6 +249,43 @@ onMounted(() => {
                 {{ $t(key === 'sleeve' && v === 'short' ? '短袖' : labels[v]) }}
               </button>
             </div>
+          </div>
+          <div class="option-field">
+            <span>{{ $t('剪裁與裙襬') }}</span>
+            <div class="option-buttons">
+              <button
+                v-for="v in options.construction"
+                :key="v"
+                :class="{ selected: config.construction === v }"
+                :disabled="!allowed('construction', v)"
+                :aria-pressed="config.construction === v"
+                @click="config.construction = v"
+              >
+                {{ $t(labels[v]) }}
+              </button>
+            </div>
+          </div>
+          <div class="option-field">
+            <span>{{ $t('外搭層次') }}</span>
+            <div class="option-buttons">
+              <button
+                v-for="v in options.layer"
+                :key="v"
+                :class="{ selected: config.layer === v }"
+                :aria-pressed="config.layer === v"
+                @click="config.layer = v"
+              >
+                {{ $t(v === 'none' ? '單件穿搭' : labels[v]) }}
+              </button>
+            </div>
+            <label v-if="config.layer !== 'none'" class="layer-color-field"
+              >{{ $t('外搭顏色')
+              }}<input
+                v-model="config.accentColor"
+                type="color"
+                :aria-label="$t('外搭顏色')"
+              /><span>{{ config.accentColor }}</span></label
+            >
           </div>
           <div class="option-field">
             <span

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { deformBodyPosition } from '../src/avatarShape.js';
-test('fitting avatar is a detailed locally bundled anatomical mesh', () => {
+test('legacy licensed anatomical mesh remains a valid archival asset', () => {
   const b = readFileSync(new URL('../public/models/atelier-body.glb', import.meta.url));
   assert.equal(b.readUInt32LE(0), 0x46546c67);
   const n = b.readUInt32LE(12),

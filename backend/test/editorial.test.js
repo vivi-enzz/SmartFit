@@ -5,13 +5,23 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import request from 'supertest';
 import { createApp } from '../src/app.js';
+import { editorial } from '../../shared/editorial.js';
 test('photographic editorial content is attributed and upgrades preserve existing user posts', async () => {
   const dir = mkdtempSync(path.join(tmpdir(), 'smartfit-edit-'));
   let app = createApp({ dataDir: dir });
   try {
     let feed = (await request(app).get('/api/posts')).body.posts;
     assert.ok(feed.filter((p) => p.editorial && p.imageUrl?.startsWith('/editorial/')).length >= 8);
-    assert.ok(feed.filter((p) => p.editorial).every((p) => p.credit?.source === 'Unsplash'));
+    assert.ok(
+      feed
+        .filter((p) => p.editorial)
+        .every((p) => ['Unsplash', 'Wikimedia Commons'].includes(p.credit?.source))
+    );
+    assert.ok(
+      feed
+        .filter((p) => p.kind === 'idol')
+        .every((p) => p.credit.author && p.credit.licenseUrl && p.eventDate)
+    );
     const agent = request.agent(app);
     await agent.post('/api/auth/demo');
     const post = await agent
@@ -22,7 +32,7 @@ test('photographic editorial content is attributed and upgrades preserve existin
     app = createApp({ dataDir: dir });
     feed = (await request(app).get('/api/posts')).body.posts;
     assert.ok(feed.some((p) => p.id === post.body.id && p.caption === 'My original outfit'));
-    assert.equal(feed.filter((p) => p.editorial).length, 10);
+    assert.equal(feed.filter((p) => p.editorial).length, editorial.length);
   } finally {
     app.locals.close();
     rmSync(dir, { recursive: true, force: true });

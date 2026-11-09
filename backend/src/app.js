@@ -19,6 +19,7 @@ import {
   metricRanges,
   validMetrics,
   validateConfig,
+  normalizeDesignConfig,
   estimatePrice,
   statusLabels,
 } from './catalog.js';
@@ -42,12 +43,14 @@ export function createApp({
   app.disable('x-powered-by');
   app.use(
     helmet({
+      referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
           scriptSrc: ["'self'"],
           styleSrc: ["'self'", "'unsafe-inline'"],
-          imgSrc: ["'self'", 'data:', 'blob:'],
+          imgSrc: ["'self'", 'data:', 'blob:', 'https://tile.openstreetmap.org'],
+          frameSrc: ["'self'", 'https://www.instagram.com'],
           connectSrc: ["'self'"],
           // Safari upgrades http://localhost resources when this default is enabled.
           // Local HTTP must remain HTTP; deployed HTTPS retains the upgrade policy.
@@ -118,7 +121,8 @@ export function createApp({
     });
     return publicUser(user);
   };
-  const designRow = (r) => (r ? { ...r, config: JSON.parse(r.config), user_id: undefined } : null);
+  const designRow = (r) =>
+    r ? { ...r, config: normalizeDesignConfig(JSON.parse(r.config)), user_id: undefined } : null;
   const getDesign = (id, user) => {
     const r = db.prepare('SELECT * FROM designs WHERE id=? AND user_id=?').get(id, user);
     if (!r) throw fail(404, '设计不存在或无权访问');
@@ -156,7 +160,7 @@ export function createApp({
   const postRow = (r, user) => ({
     ...r,
     user_id: undefined,
-    config: JSON.parse(r.config),
+    config: normalizeDesignConfig(JSON.parse(r.config)),
     imageUrl: r.image_url,
     ...(r.user_id === 'seed' && editorialById[r.id]
       ? {
@@ -165,6 +169,9 @@ export function createApp({
           captionEn: editorialById[r.id].captionEn,
           title: editorialById[r.id].title,
           kicker: editorialById[r.id].kicker,
+          kind: editorialById[r.id].kind || 'editorial',
+          eventDate: editorialById[r.id].eventDate,
+          person: editorialById[r.id].person,
         }
       : {}),
     author: db.prepare('SELECT name FROM users WHERE id=?').get(r.user_id)?.name || 'SmartFit 用户',
@@ -178,14 +185,15 @@ export function createApp({
     return p;
   };
   const configFrom = (body) => {
-    const err = validateConfig(body?.config);
+    const config = normalizeDesignConfig(body?.config);
+    const err = validateConfig(config);
     if (err) throw fail(400, err);
     return Object.fromEntries(
-      [...Object.keys(options), 'fabricId', 'colorHex'].map((k) => [k, body.config[k]])
+      [...Object.keys(options), 'fabricId', 'colorHex', 'accentColor'].map((k) => [k, config[k]])
     );
   };
   app.get('/api/health', (req, res) =>
-    res.json({ ok: true, mode: 'demo', storage: 'sqlite', version: '2.0.1' })
+    res.json({ ok: true, mode: 'demo', storage: 'sqlite', version: '2.1.0' })
   );
   app.get('/api/catalog', (req, res) =>
     res.json({ fabrics, options, labels, defaults, metricRanges, statusLabels, providers })
@@ -364,7 +372,7 @@ export function createApp({
         id: p.id,
         title: p.caption.slice(0, 45),
         type: 'post',
-        config: JSON.parse(p.config),
+        config: normalizeDesignConfig(JSON.parse(p.config)),
       }));
     res.json({ source: 'demo', results });
   });

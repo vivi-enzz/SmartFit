@@ -12,6 +12,9 @@ const c = computed(() => ({
   sleeve: 'short',
   collar: 'round',
   embroidery: 'none',
+  construction: 'classic',
+  layer: 'none',
+  accentColor: '#34363a',
   ...props.config,
 }));
 const hem = computed(() =>
@@ -74,6 +77,70 @@ const width = computed(() =>
     <g v-if="c.garmentType === 'dress'" stroke="#fff" stroke-opacity=".22" fill="none">
       <path :d="`M141 238Q139 ${hem - 60} ${136 - width / 3} ${hem}`" />
       <path :d="`M178 238Q181 ${hem - 60} ${184 + width / 3} ${hem}`" />
+    </g>
+    <g
+      v-if="c.construction === 'pleated'"
+      data-construction="pleated"
+      fill="none"
+      stroke="#29352c"
+      stroke-opacity=".24"
+    >
+      <path
+        v-for="n in 11"
+        :key="n"
+        :d="`M${133 + n * 4.5} 230 Q${133 + n * 4.5} ${hem - 55} ${160 - width + (n / 12) * width * 2} ${hem + 5}`"
+      />
+    </g>
+    <g v-if="c.construction === 'wrap'" data-construction="wrap">
+      <path
+        :d="`M184 133 Q154 196 133 224 L${160 + width * 0.35} ${hem + 9} Q${160 + width * 0.65} ${hem - 65} 184 133`"
+        :fill="c.colorHex"
+        stroke="#29352c"
+        stroke-opacity=".3"
+      />
+      <path
+        d="M132 224 Q160 235 190 223 M188 226l17 33"
+        fill="none"
+        stroke="#fff"
+        stroke-opacity=".5"
+        stroke-width="3"
+      />
+    </g>
+    <g
+      v-if="c.construction === 'tiered'"
+      data-construction="tiered"
+      :fill="c.colorHex"
+      stroke="#29352c"
+      stroke-opacity=".2"
+    >
+      <path
+        v-for="n in 3"
+        :key="n"
+        :d="`M${133 - n * width * 0.23} ${224 + ((hem - 224) * (n - 1)) / 3} Q160 ${238 + ((hem - 224) * (n - 1)) / 3} ${187 + n * width * 0.23} ${224 + ((hem - 224) * (n - 1)) / 3} L${187 + (n + 1) * width * 0.23} ${224 + ((hem - 224) * n) / 3} Q160 ${246 + ((hem - 224) * n) / 3} ${133 - (n + 1) * width * 0.23} ${224 + ((hem - 224) * n) / 3}Z`"
+      />
+    </g>
+    <g
+      v-if="c.layer !== 'none'"
+      :data-layer="c.layer"
+      :fill="c.accentColor"
+      stroke="#111"
+      stroke-opacity=".25"
+    >
+      <path
+        v-if="c.layer === 'cropped-jacket'"
+        d="M139 119 111 126 98 136 73 222 97 230 119 165 122 229 148 236 151 154ZM181 119 209 126 222 136 247 222 223 230 201 165 198 229 172 236 169 154Z"
+      />
+      <path
+        v-else
+        d="M139 119 114 129 123 185 113 333 146 342 151 154ZM181 119 206 129 197 185 207 333 174 342 169 154Z"
+      />
+      <path
+        d="M139 119 130 151 145 170 151 154ZM181 119 190 151 175 170 169 154Z"
+        stroke="#fff"
+        stroke-opacity=".4"
+      />
+      <circle cx="143" cy="205" r="2" fill="#c5b38a" />
+      <circle cx="177" cy="205" r="2" fill="#c5b38a" />
     </g>
     <g v-if="c.embroidery === 'floral'" transform="translate(181 179)" fill="#e9ddc6">
       <circle r="6" />

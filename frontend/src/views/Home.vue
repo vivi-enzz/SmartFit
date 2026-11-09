@@ -6,6 +6,7 @@ import { api } from '../api';
 import { locale } from '../i18n';
 import Icon from '../components/Icon.vue';
 import PostCard from '../components/PostCard.vue';
+import IdolSpotlight from '../components/IdolSpotlight.vue';
 import { editorial } from '../../../shared/editorial';
 const city = ref('Hong Kong'),
   data = ref(null),
@@ -28,7 +29,7 @@ async function load() {
 onMounted(async () => {
   await load();
   try {
-    posts.value = (await api('/posts')).posts.slice(0, 8);
+    posts.value = (await api('/posts')).posts.slice(0, 12);
   } catch (e) {
     error.value = e.message;
   }
@@ -115,6 +116,7 @@ async function like(p) {
         ></RouterLink>
       </div>
     </section>
+    <div class="section home-idol-section"><IdolSpotlight /></div>
     <section class="weather-edit section">
       <div class="weather-edit-heading">
         <div class="eyebrow">STYLE MEETS YOUR DAY</div>

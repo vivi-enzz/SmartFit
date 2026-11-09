@@ -145,6 +145,14 @@ async function checkout() {
             </dd>
           </div>
           <div>
+            <dt>{{ $t('剪裁與裙襬') }}</dt>
+            <dd>{{ $t(labels[design.config.construction || 'classic']) }}</dd>
+          </div>
+          <div v-if="design.config.layer && design.config.layer !== 'none'">
+            <dt>{{ $t('外搭層次') }}</dt>
+            <dd>{{ $t(labels[design.config.layer]) }}</dd>
+          </div>
+          <div>
             <dt>{{ $t('运费') }}</dt>
             <dd>{{ $t('免费（演示）') }}</dd>
           </div>

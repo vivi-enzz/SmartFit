@@ -1,10 +1,18 @@
 import { createStore } from 'vuex';
 import { api } from './api';
+import { readSavedLooks, writeSavedLooks, cleanSavedLooks } from './collections';
 export default createStore({
-  state: { user: null, ready: false, toast: '', error: false, catalog: null },
+  state: { user: null, ready: false, toast: '', error: false, catalog: null, savedLooks: [] },
   mutations: {
     user(s, u) {
       s.user = u;
+      s.savedLooks = readSavedLooks(u?.id);
+    },
+    toggleSaved(s, id) {
+      if (!s.user) return;
+      const old = s.savedLooks || [];
+      s.savedLooks = old.includes(id) ? old.filter((x) => x !== id) : cleanSavedLooks([id, ...old]);
+      writeSavedLooks(s.user.id, s.savedLooks);
     },
     ready(s) {
       s.ready = true;

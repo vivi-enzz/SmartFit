@@ -1,6 +1,8 @@
 <script setup>
 defineProps({ name: String, size: { type: Number, default: 20 } });
 const paths = {
+  bookmark: 'M6 3h12v18l-6-4-6 4V3Z',
+  camera: 'M3 7h4l2-3h6l2 3h4v14H3V7Zm13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0',
   arrow: 'M4 12h16m-6-6 6 6-6 6',
   search: 'm21 21-5-5M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0',
   user: 'M20 21v-2a7 7 0 0 0-14 0v2M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0',

@@ -1,4 +1,5 @@
 import { defaults } from './catalog.js';
+import { idolEditorial } from './idolEditorial.js';
 const items = [
   [
     'seed-1',
@@ -101,7 +102,7 @@ const items = [
     'Fashion / personal style',
   ],
 ];
-export const editorial = items.map(
+const baseEditorial = items.map(
   ([id, caption, captionEn, category, colorHex, fabricId, title, kicker], i) => ({
     id,
     caption,
@@ -125,4 +126,5 @@ export const editorial = items.map(
     editorial: true,
   })
 );
+export const editorial = [...idolEditorial, ...baseEditorial];
 export const editorialById = Object.fromEntries(editorial.map((p) => [p.id, p]));

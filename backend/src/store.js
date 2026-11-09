@@ -52,7 +52,7 @@ export function openStore(dataDir) {
       post.category,
       JSON.stringify(post.config),
       post.imageUrl,
-      '2026-11-01T10:00:00.000Z'
+      post.curatedAt || '2026-11-01T10:00:00.000Z'
     );
   return { db, key };
 }

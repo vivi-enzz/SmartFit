@@ -35,3 +35,19 @@ test('English renders the commercial home and account forms', async () => {
   assert.ok(account.includes('Try the Full Demo'));
   assert.ok(account.includes('Email'));
 });
+
+test('2D purchase and fallback previews retain new construction and layer colours', async () => {
+  const { renderGarment } = await server.ssrLoadModule('/test/render-fixture.js');
+  for (const construction of ['pleated', 'wrap', 'tiered']) {
+    const html = await renderGarment({
+      construction,
+      layer: 'cropped-jacket',
+      accentColor: '#123456',
+    });
+    assert.ok(html.includes('data-construction="' + construction + '"'));
+    assert.ok(html.includes('data-layer="cropped-jacket"'));
+    assert.ok(html.includes('#123456'));
+  }
+  const classic = await renderGarment({});
+  assert.ok(!classic.includes('data-layer='));
+});

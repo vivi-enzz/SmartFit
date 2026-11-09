@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { api } from '../api';
 import Icon from '../components/Icon.vue';
+import PartnerMap from '../components/PartnerMap.vue';
 const city = ref('Hong Kong'),
   partners = ref([]),
   error = ref(''),
@@ -9,21 +10,29 @@ const city = ref('Hong Kong'),
   selected = ref(''),
   located = ref(false),
   partnerOnly = ref(false),
-  detail = ref(null);
+  detail = ref(null),
+  userPosition = ref(null);
+let loadGeneration = 0;
 async function load(query = '') {
+  const current = ++loadGeneration;
   loading.value = true;
   error.value = '';
+  partners.value = [];
+  detail.value = null;
   try {
-    partners.value = (await api('/partners?city=' + city.value + query)).partners;
+    const result = await api('/partners?city=' + city.value + query);
+    if (current !== loadGeneration) return;
+    partners.value = result.partners;
     selected.value = partners.value[0]?.id || '';
   } catch (e) {
-    error.value = e.message;
+    if (current === loadGeneration) error.value = e.message;
   } finally {
-    loading.value = false;
+    if (current === loadGeneration) loading.value = false;
   }
 }
 function changeCity() {
   located.value = false;
+  userPosition.value = null;
   load();
 }
 function locate() {
@@ -36,6 +45,7 @@ function locate() {
   navigator.geolocation.getCurrentPosition(
     (p) => {
       located.value = true;
+      userPosition.value = [p.coords.latitude, p.coords.longitude];
       load('&lat=' + p.coords.latitude + '&lon=' + p.coords.longitude);
     },
     () => {
@@ -91,7 +101,7 @@ const list = computed(() => partners.value.filter((p) => !partnerOnly.value || p
           v-for="(p, i) in list"
           :key="p.id"
           :class="['partner-card', { selected: selected === p.id }]"
-          @mouseenter="selected = p.id"
+          @click="selected = p.id"
         >
           <div class="partner-top">
             <span class="partner-number">{{ $t(String(i + 1).padStart(2, '0')) }}</span>
@@ -121,47 +131,18 @@ const list = computed(() => partners.value.filter((p) => !partnerOnly.value || p
           </div>
         </article>
       </section>
-      <div class="partner-map">
-        <div class="map-grid"></div>
-        <div class="map-river"></div>
-        <div class="map-road road-a"></div>
-        <div class="map-road road-b"></div>
-        <span class="map-area area-a">{{
-          $t(
-            city === 'Hong Kong'
-              ? '中环'
-              : city === 'Shanghai'
-                ? '静安'
-                : city === 'Beijing'
-                  ? '朝阳'
-                  : '南山'
-          )
-        }}</span
-        ><span class="map-area area-b">{{ $t(city === 'Hong Kong' ? '湾仔' : '城市中心') }}</span
-        ><span class="map-water">{{
-          $t(city === 'Hong Kong' ? 'VICTORIA HARBOUR' : 'SMARTFIT LOCAL')
-        }}</span
-        ><button
-          v-for="(p, i) in list"
-          :key="p.id"
-          :class="['map-marker', { selected: selected === p.id }]"
-          :style="{ left: ((25 + i * 19) % 70) + 10 + '%', top: ((28 + i * 17) % 65) + 10 + '%' }"
-          :aria-label="$t('查看' + p.name)"
-          @click="
-            selected = p.id;
-            detail = p;
-          "
-        >
-          <Icon name="pin" :size="25" /><span>{{ $t(i + 1) }}</span>
-        </button>
-        <div class="map-disclaimer">
-          <Icon name="pin" :size="16" />
-          <div>
-            <b>{{ $t('服务位置示意图') }}</b>
-            <p>{{ $t('非真实地图，不提供导航或实际距离比例。') }}</p>
-          </div>
-        </div>
-      </div>
+      <PartnerMap
+        :partners="list"
+        :city="city"
+        :selected="selected"
+        :user-position="userPosition"
+        @select="
+          (id) => {
+            selected = id;
+            detail = list.find((p) => p.id === id) || null;
+          }
+        "
+      />
     </div>
     <div v-if="detail" class="panel service-detail">
       <button class="icon-button" :aria-label="$t('关闭服务详情')" @click="detail = null">

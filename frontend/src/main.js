@@ -4,6 +4,7 @@ import App from './App.vue';
 import { i18n, setLocale, locale } from './i18n';
 import store from './store';
 import './style.css';
+import './refinements.css';
 const router = createRouter({
   history: createWebHistory(),
   scrollBehavior(to, from, saved) {

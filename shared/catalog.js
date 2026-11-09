@@ -39,6 +39,8 @@ export const options = {
   sleeve: ['sleeveless', 'short', 'long'],
   length: ['short', 'midi', 'maxi'],
   embroidery: ['none', 'floral', 'initials'],
+  construction: ['classic', 'wrap', 'pleated', 'tiered'],
+  layer: ['none', 'cropped-jacket', 'long-vest'],
 };
 export const labels = {
   dress: '连衣裙',
@@ -57,6 +59,12 @@ export const labels = {
   none: '无刺绣',
   floral: '花卉刺绣',
   initials: '字母刺绣',
+  classic: '經典剪裁',
+  wrap: '裹身剪裁',
+  pleated: '細褶裙襬',
+  tiered: '分層裙襬',
+  'cropped-jacket': '短版外套',
+  'long-vest': '長版背心',
 };
 export const defaults = {
   garmentType: 'dress',
@@ -67,6 +75,9 @@ export const defaults = {
   fabricId: 'linen',
   colorHex: '#8C9B82',
   embroidery: 'none',
+  construction: 'classic',
+  layer: 'none',
+  accentColor: '#34363a',
 };
 export const metricRanges = {
   height: [140, 200],
@@ -84,12 +95,20 @@ export function validMetrics(m) {
     )
   );
 }
+export function normalizeDesignConfig(c) {
+  return c && typeof c === 'object'
+    ? { construction: 'classic', layer: 'none', accentColor: '#34363a', ...c }
+    : c;
+}
 export function validateConfig(c) {
+  c = normalizeDesignConfig(c);
   if (!c || typeof c !== 'object') return '请选择服装参数';
   for (const [k, list] of Object.entries(options))
     if (!list.includes(c[k])) return `不支持的${k}选项`;
   if (!fabrics.some((f) => f.id === c.fabricId)) return '请选择有效面料';
   if (!/^#[0-9a-f]{6}$/i.test(c.colorHex || '')) return '颜色应为六位十六进制色值';
+  if (!/^#[0-9a-f]{6}$/i.test(c.accentColor || '')) return '請選擇有效的外搭顏色';
+  if (c.garmentType === 'top' && c.construction === 'tiered') return '分層裙襬僅適用於連衣裙';
   if (c.garmentType === 'top' && c.length !== 'short') return '上装仅支持短款衣长';
   if (c.fabricId === 'wool' && c.sleeve === 'sleeveless') return '羊毛面料暂不支持无袖款式';
   return null;
@@ -99,7 +118,9 @@ export function estimatePrice(c) {
     (c.garmentType === 'top' ? 49800 : 79800) +
     (fabrics.find((f) => f.id === c.fabricId)?.price || 0) +
     (c.embroidery && c.embroidery !== 'none' ? 8000 : 0) +
-    (c.length === 'maxi' ? 6000 : 0)
+    (c.length === 'maxi' ? 6000 : 0) +
+    ({ wrap: 4000, pleated: 6000, tiered: 8000 }[c.construction] || 0) +
+    ({ 'cropped-jacket': 12000, 'long-vest': 9000 }[c.layer] || 0)
   );
 }
 export const statusLabels = {

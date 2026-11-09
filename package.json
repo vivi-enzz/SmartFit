@@ -1,6 +1,6 @@
 {
   "name": "smartfit-app",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,6 +19,7 @@
     "express": "^5.1.0",
     "express-rate-limit": "^8.0.1",
     "helmet": "^8.1.0",
+    "leaflet": "^1.9.4",
     "multer": "^2.0.2",
     "sharp": "^0.34.4",
     "three": "^0.180.0",

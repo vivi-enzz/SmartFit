@@ -20,3 +20,8 @@ export async function renderPage(name, language = 'zh-Hant') {
   });
   return renderToString(createSSRApp(component).use(i18n).use(router).use(store));
 }
+
+export async function renderGarment(config) {
+  const component = (await import('../src/components/GarmentArt.vue')).default;
+  return renderToString(createSSRApp(component, { config }).use(i18n));
+}

@@ -1,0 +1,126 @@
+import { defaults } from './catalog.js';
+import photoCredits from '../frontend/public/editorial/idols/credits.json' with { type: 'json' };
+const copy = {
+  'idol-jennie': {
+    title: 'Jennie｜黑色活動造型的俐落比例',
+    en: 'Jennie | A study in a clean black event silhouette',
+    category: 'occasion',
+    color: '#242424',
+    kicker: 'JENNIE / CHANEL / 2024.07.03',
+  },
+  'idol-wonyoung': {
+    title: '張員瑛｜Tommy Hilfiger 的學院風靈感',
+    en: 'Wonyoung | Collegiate inspiration at Tommy Hilfiger',
+    category: 'work',
+    color: '#a5a5a0',
+    kicker: 'WONYOUNG / TOMMY HILFIGER / 2024.10.10',
+  },
+  'idol-karina-airport': {
+    title: 'Karina｜從機場日常找疊穿靈感',
+    en: 'Karina | Layering ideas from airport style',
+    category: 'daily',
+    color: '#34363a',
+    kicker: 'KARINA / AIRPORT / 2025.02.26',
+  },
+  'idol-karina-stage': {
+    title: 'Karina｜舞台造型裡的個性細節',
+    en: 'Karina | Statement details from the stage',
+    category: 'occasion',
+    color: '#c2c2c5',
+    kicker: 'KARINA / SM TOWN / 2025.01.11',
+  },
+  'idol-lisa': {
+    title: 'Lisa｜Bulgari 活動造型筆記',
+    en: 'Lisa | Notes on her Bulgari event look',
+    category: 'occasion',
+    color: '#202124',
+    kicker: 'LISA / BULGARI / 2024.03.14',
+  },
+};
+export const idolEditorial = photoCredits.map((p) => ({
+  id: p.id,
+  caption: copy[p.id].title,
+  captionEn: copy[p.id].en,
+  title: copy[p.id].title,
+  category: copy[p.id].category,
+  kicker: copy[p.id].kicker,
+  imageUrl: '/editorial/idols/' + p.file,
+  editorial: true,
+  kind: 'idol',
+  eventDate: p.date,
+  person: p.person,
+  curatedAt: '2026-11-09T00:00:00.000Z',
+  tags: ['idol', p.person, 'style file', copy[p.id].category],
+  config: {
+    ...defaults,
+    fabricId: 'silk',
+    colorHex: copy[p.id].color,
+    construction: p.id === 'idol-karina-airport' ? 'pleated' : 'classic',
+    layer: p.id === 'idol-wonyoung' ? 'cropped-jacket' : 'none',
+  },
+  credit: {
+    source: 'Wikimedia Commons',
+    sourceUrl: p.source,
+    license: p.license,
+    licenseUrl: p.licenseUrl,
+    author: p.author,
+    asset: p.file,
+    modification: p.modification,
+  },
+}));
+export const officialPosts = [
+  {
+    id: 'jennie-alaia',
+    person: 'Jennie',
+    handle: 'jennierubyjane',
+    date: '2025-02-28',
+    title: 'Jennie 的 Alaïa 黑色穿搭',
+    titleEn: 'Jennie in black Alaïa',
+    summary: '透紗、流蘇皮帶與俐落鞋履的造型組合。',
+    summaryEn: 'A combination of sheer texture, a fringe belt skirt and sharp footwear.',
+    url: 'https://www.instagram.com/p/DGnQpYNJGHT/',
+    verifiedSource:
+      'https://www.harpersbazaar.com/celebrity/latest/a63973832/jennie-kim-alaia-lbd-photos/',
+    photoId: 'idol-jennie',
+  },
+  {
+    id: 'jisoo-dior',
+    person: 'Jisoo',
+    handle: 'sooyaaa__',
+    date: '2025-07 · 報道 07/17',
+    dateEn: 'Jul 2025 · Reported Jul 17',
+    title: 'Jisoo 的 Dior 舞台粉色',
+    titleEn: 'Jisoo’s pink Dior stage look',
+    summary: '洛杉磯 Deadline 巡演：粉色緞面套裝與黑色長靴。',
+    summaryEn: 'Los Angeles Deadline tour: pink satin separates with black boots.',
+    url: 'https://www.instagram.com/p/DMNBagOOPFW/',
+    verifiedSource:
+      'https://www.harpersbazaar.com/celebrity/latest/a65439029/jisoo-blackpink-concert-pink-dior-set-jonathan-anderson/',
+    photoId: null,
+  },
+  {
+    id: 'lisa-lv',
+    person: 'Lisa',
+    handle: 'lalalalisa_m',
+    date: '2025-10 · 報道 10/02',
+    dateEn: 'Oct 2025 · Reported Oct 2',
+    title: 'Lisa 的 Louis Vuitton 派對造型',
+    titleEn: 'Lisa’s Louis Vuitton party look',
+    summary: '巴黎派對中的黑色薄紗、閃亮細節與迷你包。',
+    summaryEn: 'Black sheer fabric, sparkling details and a mini bag at a Paris party.',
+    url: 'https://www.instagram.com/p/DPToDd1kxXs/',
+    verifiedSource:
+      'https://www.elle.com/culture/celebrities/a68169391/lisa-black-sheer-gown-louis-vuitton-photos/',
+    photoId: 'idol-lisa',
+  },
+];
+export const verifiedReport = {
+  date: '2026-01-10',
+  reviewedAt: '2026-11-09',
+  title: 'Jennie 金唱片造型回顧',
+  titleEn: 'Jennie’s Golden Disc Awards style file',
+  summary: '從 Chrome Hearts、Dilara Findikoglu 到 Maison Margiela，觀察舞台服裝的材質與輪廓。',
+  summaryEn:
+    'A look at stage textures and silhouettes through Chrome Hearts, Dilara Findikoglu and Maison Margiela.',
+  url: 'https://www.voguehk.com/en/article/fashion/style-file-blackpink-jennie/',
+};

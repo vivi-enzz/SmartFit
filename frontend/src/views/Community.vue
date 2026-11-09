@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch, reactive } from 'vue';
+import { ref, onMounted, watch, reactive, computed } from 'vue';
 import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router';
 import { api } from '../api';
@@ -7,6 +7,7 @@ import { locale } from '../i18n';
 import PostCard from '../components/PostCard.vue';
 import GarmentArt from '../components/GarmentArt.vue';
 import Icon from '../components/Icon.vue';
+import IdolSpotlight from '../components/IdolSpotlight.vue';
 import { defaults } from '../../../shared/catalog';
 const store = useStore(),
   route = useRoute(),
@@ -22,7 +23,13 @@ const store = useStore(),
   busy = ref(false),
   designs = ref([]),
   uploading = ref(false),
-  aiBusy = ref(false);
+  aiBusy = ref(false),
+  savedOnly = ref(false);
+const visiblePosts = computed(() =>
+  savedOnly.value
+    ? posts.value.filter((p) => (store.state.savedLooks || []).includes(p.id))
+    : posts.value
+);
 const draft = reactive({ designId: '', caption: '', category: 'daily', imageUrl: '' });
 const draftConfig = ref({ ...defaults });
 async function load() {
@@ -161,6 +168,13 @@ function close() {
       <p>{{ $t('真實街頭，真實風格。今日靈感已上線。') }}</p>
       <RouterLink to="/studio">{{ $t('從靈感開始訂製 ↗') }}</RouterLink>
     </div>
+    <IdolSpotlight v-if="!savedOnly && !q" />
+    <div class="community-topic-strip">
+      <RouterLink :to="{ path: '/community', query: { q: 'Karina' } }"># K-STYLE LAYERS</RouterLink
+      ><RouterLink :to="{ path: '/community', query: { q: 'Jennie' } }"># IDOL STYLE</RouterLink
+      ><RouterLink :to="{ path: '/community', query: { q: 'linen' } }"># LINEN DAYS</RouterLink
+      ><RouterLink :to="{ path: '/community', query: { q: 'city' } }"># CITY UNIFORM</RouterLink>
+    </div>
     <div class="community-toolbar">
       <div class="filter-tabs">
         <button
@@ -177,6 +191,10 @@ function close() {
           {{ $t(label) }}
         </button>
       </div>
+      <button class="saved-filter" :class="{ selected: savedOnly }" @click="savedOnly = !savedOnly">
+        <Icon name="bookmark" :size="14" />{{ $t('我的靈感板') }}
+        <span>{{ (store.state.savedLooks || []).length }}</span>
+      </button>
       <form class="inline-search" @submit.prevent="load">
         <Icon name="search" :size="17" /><input
           v-model="q"
@@ -187,7 +205,7 @@ function close() {
     </div>
     <div v-if="error && !compose" class="error-box" role="alert">{{ $t(error) }}</div>
     <div v-if="loading" class="loading-state">{{ $t('灵感正在到来…') }}</div>
-    <div v-else-if="!posts.length" class="empty-state">
+    <div v-else-if="!visiblePosts.length" class="empty-state">
       <h2>{{ $t('还没有找到这份灵感。') }}</h2>
       <p>{{ $t('换个关键词，或者成为第一个分享的人。') }}</p>
       <button
@@ -202,7 +220,16 @@ function close() {
       </button>
     </div>
     <div v-else class="post-grid">
-      <PostCard v-for="p in posts" :key="p.id" :post="p" @like="like" />
+      <PostCard v-for="p in visiblePosts" :key="p.id" :post="p" @like="like" />
+      <article v-if="!savedOnly && !q && category === 'all'" class="community-publish-card">
+        <div class="publish-grid-mark"><Icon name="camera" :size="30" /></div>
+        <span>YOUR STYLE GOES HERE</span>
+        <h3>{{ $t('下一份靈感，來自你。') }}</h3>
+        <p>{{ $t('分享今天的穿搭，或把收藏變成自己的訂製設計。') }}</p>
+        <button class="primary small" @click="openCompose">
+          {{ $t('發佈我的穿搭') }}<Icon name="plus" :size="15" />
+        </button>
+      </article>
     </div>
     <Teleport to="body"
       ><div v-if="compose" class="modal-backdrop" @click.self="close" @keydown.esc="close">

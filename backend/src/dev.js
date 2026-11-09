@@ -13,7 +13,7 @@ server.on('error', (error) => {
 });
 server.listen(port, '0.0.0.0', () =>
   console.log(
-    `\n SmartFit 2.0.1 · 前端與 API 共用網址\n http://localhost:${port}\n 保持此終端執行；停止服務請按 Control+C。\n`
+    `\n SmartFit 2.1.0 · 前端與 API 共用網址\n http://localhost:${port}\n 保持此終端執行；停止服務請按 Control+C。\n`
   )
 );
 let closing = false;

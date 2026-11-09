@@ -1,4 +1,4 @@
-# SmartFit 2.0 · 穿出你的下一個版本。
+# SmartFit 2.1 · 穿出你的下一個版本。
 
 SEEM5760 课程项目的完整本地演示版，依据 `SmartFit_SEEM5760_Final_Review.docx` 开发。将服装定制、3D 造型预览、穿搭社区、模拟支付和履约流程串联起来。
 
@@ -27,15 +27,21 @@ npm start
 
 ## 从旧版更新（Mac）
 
-先在旧服务终端按 **Control+C**，然后逐行执行：
+先在旧服务终端按 **Control+C**。若 raw.githubusercontent.com 下载失败，请用浏览器打开 [GitHub 项目](https://github.com/vivi-enzz/SmartFit)，选择 **Code → Download ZIP** 并解压。先备份旧文件夹；把旧版 `backend/data/`（含数据库、密钥和上传文件）以及 `.env` 复制到新版相同位置，再在新版目录逐行运行：
 
 ```bash
-cd ~/Downloads/SmartFit-main
-curl -fsSL https://raw.githubusercontent.com/vivi-enzz/SmartFit/main/scripts/update-local.sh -o /tmp/smartfit-update.sh
-bash /tmp/smartfit-update.sh "$PWD"
+npm ci
+npm run dev
 ```
 
-脚本会校验 Node 版本与项目目录，下载完整源码，先把旧源码备份到同级 `SmartFit-source-backups/`，保留原有 `backend/data/`、个人上传文件和 `.env`，安装依赖后启动新版。请勿把空的新资料目录覆盖旧的资料目录。通过 Git 克隆且无本地修改的项目，也可 `git pull` 后 `npm ci`、`npm run dev`。
+打开 http://localhost:5173，并按 Command+Shift+R 刷新。不要同时运行旧版。通过 Git 克隆且无本地修改的项目，可 `git pull` 后运行上述命令。`node -p "require('./package.json').version"` 应显示 `2.1.0`。
+
+## 2.1 体验改进
+
+- 灵感页改为响应式四列网格，统一封面比例；首页显示十二张，社区增加话题、发帖入口和按账户保存在当前浏览器的灵感收藏。
+- 工作室采用简约无脸展示模特，提供细褶、裹身、分层裙摆及外套／背心；四套风格起点、独立外搭配色和织物近景。旧设计默认不添加层次、不改变价格，新参数由后端报价并保存到订单快照。
+- 城市地图使用 Leaflet + OpenStreetMap 真实底图，可拖动、双指缩放、按钮缩放、与店铺选择联动；需要联网，底图失败可打开外部地图。店铺仍是演示数据。
+- 五张有授权的 Jennie、Lisa、Karina、Wonyoung 活动照片，附日期和署名；三条已核验的 2025 年 Instagram 原帖由用户点击后加载，另有 2026 年时装报道。资料照和原帖为不同活动，并非明星在 SmartFit 投稿。授权页提供完整来源。
 
 ## 2.0 改版
 
@@ -108,7 +114,7 @@ Node 不会自动加载 `.env`。可复制 `.env.example` 为 `.env`，使用 `n
 
 九家外部供应商均使用明确标注的本地演示替代：OpenWeather 天气、Cloudinary 图片处理、Facebook 分享、Google Places 店铺、Stripe 支付、AfterShip 物流、Algolia 搜索、Twilio 通知、OpenAI 文案。应用不请求真实银行卡，不真实扣款、不发送短信、不发帖到外部平台，不向工厂发送订单。浏览器分享或复制链接由用户主动触发。
 
-三维人物采用 MakeHuman CC0 的细致人体网格，服装使用程序网格和比例调整；不进行物理布料模拟或真实合体预测。店铺为虚构示例，地图仅为位置示意。报告中的生产性能、可用性、可持续性收益和安全合规认证均未在此演示中验证。未自动部署或发布。
+三维工作室采用本项目建立的简约展示模特、程序化服装与织物材质；不进行物理布料模拟或真实合体预测。旧版 MakeHuman 资产保留作历史参考。地图为真实地理底图，店铺仍为虚构示例。报告中的生产性能、可用性、可持续性收益和安全合规认证均未在此演示中验证。未自动部署或发布。
 
 ## Safari 显示标题但页面空白
 
